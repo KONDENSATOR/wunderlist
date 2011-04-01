@@ -17,6 +17,57 @@ $(function()
 	share.init();
 });
 
+function trim(str, chars) {
+	return ltrim(rtrim(str, chars), chars);
+}
+ 
+function ltrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
+}
+ 
+function rtrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
+}
+
+/**
+ * Extracts tags from textstring
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.fetchTagsFromString = function(str) {
+	var regex = /(^|\s)((@\[[^\]]+\])|(#\[[^\]]+\])|(@[^\s]+)|(#[^\s]+)|((\w+[\-\.])*\w+@(\w+\.)+[A-Za-z]+))/;
+	var text = str;
+	var match = regex.exec(text);
+	var matches = [];
+	
+	while(match != null){
+		var result = trim(match[0],"\\s\\.,");
+				
+		matches.push(result);
+		
+		text = text.replace(result, "");
+		match = regex.exec(text);
+	}
+	
+	var result = { users:[], tags:[], emails:[] };
+	
+	for(var m in matches) {
+		var itm = matches[m];
+		if(itm.match(/^@/)){
+			result.users.push(itm);
+		} else if(itm.match(/^#/)){
+			result.tags.push(itm);
+		} else {
+			result.emails.push(itm);
+		}
+	}
+		
+	return result;
+}
+
+
 /**
  * Extends application title with current version
  *
@@ -24,7 +75,7 @@ $(function()
  */
 wunderlist.initAppTitle = function()
 {
-	document.title = 'Wunderlist ';
+	document.title = 'Awsomelist ';
 }
 
 /**
@@ -47,7 +98,7 @@ wunderlist.initDatabase = function()
 	}
 	
 	this.database.execute("CREATE TABLE IF NOT EXISTS lists (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, position INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, inbox INTEGER DEFAULT 0)");
-	this.database.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, list_id TEXT, note TEXT DEFAULT '', date INTEGER DEFAULT 0, done_date INTEGER DEFAULT 0, done INTEGER DEFAULT 0, position INTEGER DEFAULT 0, important INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0)");
+	this.database.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, list_id TEXT, note TEXT DEFAULT '', date INTEGER DEFAULT 0, done_date INTEGER DEFAULT 0, done INTEGER DEFAULT 0, position INTEGER DEFAULT 0, important INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, 'tags' STRING DEFAULT '', 'users' STRING DEFAULT '')");
 }
 
 /**
@@ -86,6 +137,15 @@ wunderlist.update_120 = function() {
 	}
 	catch(err) {}
 };
+
+wunderlist.update_120_kondensator = function() {
+	try {
+		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'tags' TEXT DEFAULT ''");
+		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'users' TEXT DEFAULT ''");		
+		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'emails' TEXT DEFAULT ''");		
+	}
+	catch(err) {}
+}
 
 /**
  * Creates the standard database calls
@@ -348,13 +408,17 @@ wunderlist.query = function(query)
     return this.database.execute(query);
 }
 
+
 /**
  * Creates a task with the given name, list_id and timestamp
  *
  * @author Dennis Schneider
+ * @updated Fredrik Andersson
  */
 wunderlist.createTask = function(name, list_id, timestamp)
 {
+	var alltags = this.fetchTagsFromString(name);
+		
 	if(timestamp == '') timestamp = 0;
 
     // Get current position
@@ -369,7 +433,14 @@ wunderlist.createTask = function(name, list_id, timestamp)
 	else
 		var new_position = 0;
 
- 	this.database.execute("INSERT INTO tasks (name, list_id, date, position, version) VALUES ('" + name + "', '" + list_id + "', '" + timestamp + "', '" + new_position + "', '0')");
+ 	this.database.execute("INSERT INTO tasks (name, list_id, date, position, version, tags, users, emails) VALUES ('"
+ 		+ name + "', '" 
+		+ list_id + "', '" 
+		+ timestamp + "', '" 
+		+ new_position + "', '0','" 
+		+ alltags.tags.join(',') + "','" 
+		+ alltags.users.join(',') + "','" 
+		+ alltags.emails.join(',') + "')");
 
 	wunderlist.updateCount(list_id);
 
@@ -508,9 +579,17 @@ wunderlist.deleteElementForever = function(online_id, type)
  */
 wunderlist.updateTask = function(task_id, name, date)
 {
+	var alltags = this.fetchTagsFromString(name);
+	
 	if(date == '') date = 0;
 	timer.stop().set(15).start();
-	this.database.execute("UPDATE tasks SET name = ?, date = ?, version = version + 1 WHERE id = ?", name, date, task_id);
+	this.database.execute("UPDATE tasks SET name = ?, date = ?, version = version + 1, tags = ?, users = ?, emails = ? WHERE id = ?", 
+		name, 
+		date, 
+		alltags.tags.join(','), 
+		alltags.users.join(','),
+		alltags.emails.join(','),
+		task_id);
 }
 
 /**
@@ -520,8 +599,24 @@ wunderlist.updateTask = function(task_id, name, date)
  */
 wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
+	var alltags = this.fetchTagsFromString(name);
+
 	if(date == '') date = 0;
-	this.database.execute("UPDATE tasks SET name = ?, date = ?, done = ?, list_id = ?, position = ?, important = ?, done_date = ?, deleted = ?, version = ?, note = ? WHERE online_id = ?", name, date, done, list_id, position, important, done_date, deleted, version, note, online_id);
+	this.database.execute("UPDATE tasks SET name = ?, date = ?, done = ?, list_id = ?, position = ?, important = ?, done_date = ?, deleted = ?, version = ?, note = ?, tags = ?, users = ?, emails = ? WHERE online_id = ?", 
+		name, 
+		date, 
+		done, 
+		list_id, 
+		position, 
+		important, 
+		done_date, 
+		deleted, 
+		version, 
+		note,
+		alltags.tags.join(','), 
+		alltags.users.join(','),
+		alltags.emails.join(','),
+		online_id);
 }
 
 /**
@@ -531,8 +626,25 @@ wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id,
  */
 wunderlist.createTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
+	var alltags = this.fetchTagsFromString(name);
+
 	if(date == '') date = 0;
-	this.database.execute("INSERT INTO tasks (online_id, name, date, done, list_id, position, important, done_date, deleted, version, note) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", online_id, name, date, done, list_id, position, important, done_date, deleted, version, note);
+	this.database.execute("INSERT INTO tasks (online_id, name, date, done, list_id, position, important, done_date, deleted, version, note, tags, users, emails) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+		online_id, 
+		name, 
+		date, 
+		done, 
+		list_id, 
+		position, 
+		important, 
+		done_date, 
+		deleted, 
+		version, 
+		note,
+		alltags.tags.join(','), 
+		alltags.users.join(','),
+		alltags.emails.join(',')
+		);
 }
 
 /**
@@ -1186,9 +1298,12 @@ wunderlist.getDataForSync = function(type, fields, where, return_object)
 
 	if(return_object == undefined)
 		return_object = true;
-
+	
 	if(fields == undefined)
 		fields = '*'
+
+	if(type == 'tasks' & fields == "*")
+		fields = 'id, online_id, name, list_id, note, date, done_date, done, position, important, version, deleted'
 
     var sql  = "SELECT " + fields + " FROM " + type;
 

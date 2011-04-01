@@ -122,7 +122,7 @@ Menu.initializeTrayIcon = function() {
 		var trayIcon     = Titanium.UI.addTray(trayIconPath, function () {
 			Menu.showWindow(wunderlistWindow)
 		});
-		trayIcon.setHint('Wunderlist - todo application')
+		trayIcon.setHint('Awsomelist - todo application')
 
 		var trayMenu         = Titanium.UI.createMenu();
 		var trayExitItem	 = trayMenu.addItem(language.data.exit_wunderlist, Menu.exitWunderlist);
@@ -213,7 +213,7 @@ Menu.remove = function() {
  * @author Daniel Marschner
  */
 function openCreditsDialog() {
-	dialogs.openDialog(dialogs.generateDialog('What is Wunderlist?', html.generateCreditsDialogHTML(), 'dialog-credits'));
+	dialogs.openDialog(dialogs.generateDialog('What is Awsomelist?', html.generateCreditsDialogHTML(), 'dialog-credits'));
 }
 
 function openBackgroundsDialog() {

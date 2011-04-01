@@ -13,7 +13,9 @@ updater.init = function() {
 	updater.to_111();
 	
 	// Update to version 1.2.0
-	//updater.to_120();
+	// updater.to_120();
+	
+	updater.to_120_kondensator();
 };
 
 /**
@@ -48,9 +50,20 @@ updater.to_111 = function() {
  * @author Daniel Marschner
  */
 updater.to_120 = function() {
-	if (Titanium.App.Properties.hasProperty('version') == false || parseInt(Titanium.App.Properties.getString('version')) < 120)
-	{
+	if (Titanium.App.Properties.hasProperty('version') == false || parseInt(Titanium.App.Properties.getString('version')) < 120) {
 		Titanium.App.Properties.setString('version', Titanium.App.version.toString().split('.').join(''));	
 		wunderlist.update_120();
+	}
+}
+
+/**
+ * Check the version for doing the update to version 1.2.0
+ *
+ * @author Daniel Marschner
+ */
+updater.to_120_kondensator = function() {
+	if (Titanium.App.Properties.hasProperty('version') == false || parseInt(Titanium.App.Properties.getString('version')) < 121) {
+		Titanium.App.Properties.setString('version', Titanium.App.version.toString().split('.').join(''));	
+		wunderlist.update_120_kondensator();
 	}
 }
