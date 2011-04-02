@@ -54,7 +54,8 @@ wunderlist.fetchTagsFromString = function(str) {
 	var result = { users:[], tags:[], emails:[] };
 	
 	for(var m in matches) {
-		var itm = matches[m];
+		var itm = matches[m].toLowerCase();
+		
 		if(itm.match(/^@/)){
 			result.users.push(itm);
 		} else if(itm.match(/^#/)){
@@ -67,6 +68,67 @@ wunderlist.fetchTagsFromString = function(str) {
 	return result;
 }
 
+/**
+ * Add tags to this.users, this.tags, this.emails
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.addTagsToList = function(tags) {
+	var addTags = function(src, dest) {
+		for(var i in src) {
+			var tag = src[i];
+
+			if(dest[tag] == null){
+				dest[tag] = 1;
+			} else {
+				dest[tag] += 1;
+			}
+		}
+	}
+	
+	addTags(tags.users, this.users);
+	addTags(tags.tags, this.tags);
+	addTags(tags.emails, this.emails);
+}
+
+/**
+ * Fetches all tags from database and count the number of times 
+ * each tag is used. Type can be 'tags', 'users' or 'emails'
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.getAllOfMeta = function(type) {
+	var sql  = "SELECT " + type + " ";
+	    sql += "FROM tasks ";
+
+	var resultSet = this.database.execute(sql);
+
+    var result = {};
+
+    if (resultSet.rowCount() > 0) {
+		while(resultSet.isValidRow()) {
+			var tags = resultSet.field(0);
+			
+			tags = tags.split(',');
+			
+			for(var i in tags) {
+				var value = tags[i];
+				
+				if(result[value] == null) {
+					result[value] = 1;
+					// Titanium.API.debug("created " + value)
+				} else {
+					result[value] += 1;
+					// Titanium.API.debug("    add " + value)
+				}
+			}
+			
+	        resultSet.next();
+		}
+	}
+	
+	return result;
+}
 
 /**
  * Extends application title with current version
@@ -99,6 +161,11 @@ wunderlist.initDatabase = function()
 	
 	this.database.execute("CREATE TABLE IF NOT EXISTS lists (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, position INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, inbox INTEGER DEFAULT 0)");
 	this.database.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, list_id TEXT, note TEXT DEFAULT '', date INTEGER DEFAULT 0, done_date INTEGER DEFAULT 0, done INTEGER DEFAULT 0, position INTEGER DEFAULT 0, important INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, 'tags' STRING DEFAULT '', 'users' STRING DEFAULT '')");
+
+	// Initialize tags lookup
+	this.tags = this.getAllOfMeta('tags');
+	this.users = this.getAllOfMeta('users');
+	this.emails = this.getAllOfMeta('emails');	
 }
 
 /**
@@ -418,7 +485,9 @@ wunderlist.query = function(query)
 wunderlist.createTask = function(name, list_id, timestamp)
 {
 	var alltags = this.fetchTagsFromString(name);
-		
+	
+	this.addTagsToList(alltags);
+	
 	if(timestamp == '') timestamp = 0;
 
     // Get current position
@@ -580,6 +649,7 @@ wunderlist.deleteElementForever = function(online_id, type)
 wunderlist.updateTask = function(task_id, name, date)
 {
 	var alltags = this.fetchTagsFromString(name);
+	this.addTagsToList(alltags);
 	
 	if(date == '') date = 0;
 	timer.stop().set(15).start();
@@ -600,6 +670,7 @@ wunderlist.updateTask = function(task_id, name, date)
 wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
 	var alltags = this.fetchTagsFromString(name);
+	this.addTagsToList(alltags);
 
 	if(date == '') date = 0;
 	this.database.execute("UPDATE tasks SET name = ?, date = ?, done = ?, list_id = ?, position = ?, important = ?, done_date = ?, deleted = ?, version = ?, note = ?, tags = ?, users = ?, emails = ? WHERE online_id = ?", 
@@ -627,6 +698,8 @@ wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id,
 wunderlist.createTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
 	var alltags = this.fetchTagsFromString(name);
+	
+	this.addTagsToList(alltags);
 
 	if(date == '') date = 0;
 	this.database.execute("INSERT INTO tasks (online_id, name, date, done, list_id, position, important, done_date, deleted, version, note, tags, users, emails) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
