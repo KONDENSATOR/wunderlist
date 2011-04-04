@@ -18,11 +18,29 @@ function toggle_date () {
 
 function add_todo () {
 	if ($('#input').val() != '') {
-		$('.sortable').append('<li style="display:none;"><article class="todo rounded gray_gradient" id="todo_XXX"><div class="timer"><div class="lamp start"></div><div class="lamp paus"></div><div class="lamp stop"></div></div><div class="date_holder"><div class="day">'+$('#day').html()+'</div><div class="month">'+$('#month').html()+'</div></div><div class="description_holder"><h1>'+$('#input').val()+'</h1></div></article></li>');
+		
+		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
+		var todo_data = {
+			id: 1,
+			opacity:opacity,
+			day: $('#day').html(),
+			month: $('#month').html(),
+			message: $('#input').val()
+		};
+		
+		var todo = ich.todo_header_template(todo_data);
+
+		$('.sortable').append(todo);
+		
 		$('#todo_XXX').slideDown("fast");
-		$('#input').val('');
 		$('.sortable').sortable('cancel');
-		$('#input').blur();
+		
+		$('#input').val('');
+		$('#day').html('');
+		$('#month').html('');
+		$('#date').val('');
+		$('#date_holder').css('opacity',0.5);
+		
 		activate_filter();
 		setup_sortable();
 	}
@@ -35,10 +53,6 @@ $(document).ready(function(){
 			multipleSeparator: " "
 	});
 	
-	var currentTime = new Date()
-	$('#day').html(currentTime.getDate());
-	$('#month').html(month_dic[''+(currentTime.getMonth()+1)]);
-	
 	$("header :date").dateinput({
 		value: new Date(),
 		firstDay: 1,
@@ -47,6 +61,7 @@ $(document).ready(function(){
 		change: function() {
 			$('#day').html(this.getValue('dd'));
 			$('#month').html(month_dic[this.getValue('mm')]);
+			$('#date_holder').css('opacity',1.0);
 			toggle_date();
 		}
 	});

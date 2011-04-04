@@ -24,6 +24,28 @@
 		<script src="javascripts/header.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/footer.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/todo_list.js" type="text/javascript" charset="utf-8"></script>
+		
+		<!-- Templates -->
+		<script id="todo_header_template" type="text/html">
+		<li>
+			<article class="todo rounded gray_gradient keynav_box" id="todo_{{ id }}">
+				<div class="timer">
+					<div class="lamp start"></div>
+					<div class="lamp paus"></div>
+					<div class="lamp stop"></div>
+				</div>
+				<div class="date_holder" style="opacity:{{ opacity }}">
+					<div class="day">{{ day }}</div>
+					<div class="month">{{ month }}</div>
+				</div>
+				<div class="description_holder" onclick="show_meta('#meta_todo_{{ id }}')">
+					<h1>{{ message }}</h1>
+				</div>
+			</article>
+			<div id="meta_todo_{{ id }}" class="meta_data shadow rounded"></div>
+		</li>
+		</script>
+		<script src="javascripts/ICanHaz.min.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	
 	<body>
@@ -32,8 +54,8 @@
 				<input id="hidden" style="opacity:0.0;" />
 				<div id="date_holder">
 					<div id="cal_holder">
-						<div id="day" onclick="toggle_date();">11</div>
-						<div id="month" onclick="toggle_date();">June</div>
+						<div id="day" onclick="toggle_date();"></div>
+						<div id="month" onclick="toggle_date();"></div>
 					</div>
 					<input type="date" id="date" name="date" />
 				</div>
@@ -44,59 +66,7 @@
 		
 		<section id="todo_list" class="shadow">
 			<ul class="sortable">
-				<li>
-					<article class="todo rounded gray_gradient keynav_box" id="todo_1">
-						<div class="timer">
-							<div class="lamp start"></div>
-							<div class="lamp paus"></div>
-							<div class="lamp stop"></div>
-						</div>
-						<div class="date_holder">
-							<div class="day">12</div>
-							<div class="month">July</div>
-						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_1')">
-							<h1>#Finansliv @Robin Optimera Date parsern.</h1>
-						</div>
-					</article>
-					<div id="meta_todo_1" class="meta_data shadow rounded"></div>
-				</li>
 				
-				<li>
-					<article class="todo rounded gray_gradient keynav_box" id="todo_2">
-						<div class="timer">
-							<div class="lamp start"></div>
-							<div class="lamp paus"></div>
-							<div class="lamp stop"></div>
-						</div>
-						<div class="date_holder">
-							<div class="day">13</div>
-							<div class="month">September</div>
-						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_2')">
-							<h1>#BytBil @Fredrik Fixa med prylar.</h1>
-						</div>
-					</article>
-					<div id="meta_todo_2" class="meta_data shadow rounded"></div>
-				</li>
-				
-				<li>
-					<article class="todo rounded gray_gradient keynav_box" id="todo_3">
-						<div class="timer">
-							<div class="lamp start"></div>
-							<div class="lamp paus"></div>
-							<div class="lamp stop"></div>
-						</div>
-						<div class="date_holder">
-							<div class="day">11</div>
-							<div class="month">June</div>
-						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_3')">
-							<h1>#iPhoneguiden @Victor Ladda upp till AppStore.</h1>
-						</div>
-					</article>
-					<div id="meta_todo_3" class="meta_data shadow rounded"></div>
-				</li>
 			</ul>
 
 		</section>
