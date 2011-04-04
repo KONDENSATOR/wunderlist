@@ -15,15 +15,19 @@
 		<link rel="stylesheet" href="stylesheets/footer.css">
 		<link rel="stylesheet" href="stylesheets/jquery/jquery.autocomplete.css">
 		<link rel="stylesheet" href="stylesheets/jquery/jquery.datepicker.css">
+		
 		<script src="javascripts/jquery/jquery-1.5.2.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery.autocomplete.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery.tools.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery.keyboard.js" type="text/javascript" charset="utf-8"></script>
+		
 		<script src="javascripts/general.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/header.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/footer.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/todo_list.js" type="text/javascript" charset="utf-8"></script>
+		
+		<script src="javascripts/main.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	
 	<body>
@@ -32,8 +36,8 @@
 				<input id="hidden" style="opacity:0.0;" />
 				<div id="date_holder">
 					<div id="cal_holder">
-						<div id="day" onclick="toggle_date();">11</div>
-						<div id="month" onclick="toggle_date();">June</div>
+						<div id="day" onclick="header.toggle_date();">11</div>
+						<div id="month" onclick="header.toggle_date();">June</div>
 					</div>
 					<input type="date" id="date" name="date" />
 				</div>
@@ -55,7 +59,7 @@
 							<div class="day">12</div>
 							<div class="month">July</div>
 						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_1')">
+						<div class="description_holder" onclick="todo_list.show_meta('#meta_todo_1')">
 							<h1>#Finansliv @Robin Optimera Date parsern.</h1>
 						</div>
 					</article>
@@ -73,7 +77,7 @@
 							<div class="day">13</div>
 							<div class="month">September</div>
 						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_2')">
+						<div class="description_holder" onclick="todo_list.show_meta('#meta_todo_2')">
 							<h1>#BytBil @Fredrik Fixa med prylar.</h1>
 						</div>
 					</article>
@@ -91,7 +95,7 @@
 							<div class="day">11</div>
 							<div class="month">June</div>
 						</div>
-						<div class="description_holder" onclick="show_meta('#meta_todo_3')">
+						<div class="description_holder" onclick="todo_list.show_meta('#meta_todo_3')">
 							<h1>#iPhoneguiden @Victor Ladda upp till AppStore.</h1>
 						</div>
 					</article>
@@ -103,10 +107,10 @@
 		
 		<footer id="footer">
 			<div id="show_more">⬆</div>
-			<div id="cloud_#Finansliv" class="cloud" onclick="activate_filter('#Finansliv');">#Finansliv</div>
-			<div id="cloud_#iPhoneguiden" class="cloud" onclick="activate_filter('#iPhoneguiden');">#iPhoneguiden</div>
-			<div id="cloud_#Lindorff" class="cloud" onclick="activate_filter('#Lindorff');">#Lindorff</div>
-			<div id="cloud_#BytBil" class="cloud" onclick="activate_filter('#BytBil');">#BytBil</div>
+			<div id="cloud_#Finansliv" class="cloud" onclick="todo_list.activate_filter('#Finansliv');">#Finansliv</div>
+			<div id="cloud_#iPhoneguiden" class="cloud" onclick="todo_list.activate_filter('#iPhoneguiden');">#iPhoneguiden</div>
+			<div id="cloud_#Lindorff" class="cloud" onclick="todo_list.activate_filter('#Lindorff');">#Lindorff</div>
+			<div id="cloud_#BytBil" class="cloud" onclick="todo_list.activate_filter('#BytBil');">#BytBil</div>
 		</footer>
 	</body>
 

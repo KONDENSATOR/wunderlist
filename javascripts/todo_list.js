@@ -1,9 +1,14 @@
+var todo_list = {
+	last_cloud_tag:'',
+	just_dragged:false
+};
+
 /*
  * Description
  */
-function show_meta (meta_data_id) {
+todo_list.show_meta = function(meta_data_id) {
 	$('#todo_list .meta_data').not(meta_data_id).slideUp("fast");
-	if (!just_dragged) {
+	if (!this.just_dragged) {
 		if ($(meta_data_id).css('display') == 'none') {
 			$(meta_data_id).slideDown("fast");
 		} else {
@@ -12,8 +17,7 @@ function show_meta (meta_data_id) {
 	}
 }
 
-var last_cloud_tag = '';
-function activate_filter (filter_string) {
+todo_list.activate_filter = function(filter_string) {
 	if (filter_string == null) {
 		filter_string = $('#input').val();
 	} else {
@@ -21,11 +25,11 @@ function activate_filter (filter_string) {
 		if (tag_is_aleady_selected) {
 			$('.cloud').animate({opacity:1.0}, 300, function(){});
 			filter_string = '';
-			last_cloud_tag = '';
+			this.last_cloud_tag = '';
 		} else {
 			$('.cloud').not(':contains('+filter_string+')').animate({opacity:0.5}, 300, function(){});
 			$('.cloud:contains('+filter_string+')').animate({opacity:1.0}, 300, function(){});
-			last_cloud_tag = filter_string;
+			this.last_cloud_tag = filter_string;
 		}
 	}
 	
@@ -37,16 +41,15 @@ function activate_filter (filter_string) {
 	}
 }
 
-var just_dragged = false;
-function setup_sortable () {
+todo_list.setup_sortable = function() {
 		$('.sortable').sortable({
 			axis:'y',
 			start:function(){
 				$('#todo_list .meta_data').slideUp("fast");
 			},
 			stop:function(){
-				just_dragged = true;
-				setTimeout("just_dragged = false;",100);
+				this.just_dragged = true;
+				setTimeout("this.just_dragged = false;",100);
 			},
 			update:function(){
 				var ids = [];
@@ -56,12 +59,12 @@ function setup_sortable () {
 
 				// Report the new order here.
 
-				just_dragged = true;
-				setTimeout("just_dragged = false;",100);
+				this.just_dragged = true;
+				setTimeout("this.just_dragged = false;",100);
 			}
 		});
 }
 
-$(document).ready(function(){
-	setup_sortable();
-});
+todo_list.init = function() {
+	this.setup_sortable();
+}

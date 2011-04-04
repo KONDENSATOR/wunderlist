@@ -1,4 +1,6 @@
-function toggle_date () {
+var header = {};
+
+header.toggle_date = function() {
 	if ($('#date_holder').css('width') == '20px') {
 		$('#input').animate({left:130}, 300, function(){});
 		$('#date_holder').animate({width:115}, 300, function(){
@@ -16,7 +18,7 @@ function toggle_date () {
 	}
 }
 
-function add_todo () {
+header.add_todo = function() {
 	if ($('#input').val() != '') {
 		$('.sortable').append('<li style="display:none;"><article class="todo rounded gray_gradient" id="todo_XXX"><div class="timer"><div class="lamp start"></div><div class="lamp paus"></div><div class="lamp stop"></div></div><div class="date_holder"><div class="day">'+$('#day').html()+'</div><div class="month">'+$('#month').html()+'</div></div><div class="description_holder"><h1>'+$('#input').val()+'</h1></div></article></li>');
 		$('#todo_XXX').slideDown("fast");
@@ -28,7 +30,7 @@ function add_todo () {
 	}
 }
 
-$(document).ready(function(){
+header.init = function() {
 	var data = ['#Finansliv','#iPhoneguiden','#MinaSidor','#BytBil','@Robin','@Fredrik','@Victor','@Andreas'];
 	$('#input').autocomplete(data,{
 			multiple: true,
@@ -47,17 +49,17 @@ $(document).ready(function(){
 		change: function() {
 			$('#day').html(this.getValue('dd'));
 			$('#month').html(month_dic[this.getValue('mm')]);
-			toggle_date();
+			this.toggle_date();
 		}
 	});
 	
 	
 	
 	if (/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
-		$('#add_button').bind('touchend',add_todo);
+		$('#add_button').bind('touchend',this.add_todo);
 		$('#add_tooltip').css('opacity',0.0);
 	} else {
-		$('#add_button').bind('click',add_todo);
+		$('#add_button').bind('click',this.add_todo);
 	}
 	
 	var isCommand = false;$(document).keyup(function (e) {
@@ -70,7 +72,7 @@ $(document).ready(function(){
 	$('#input').keydown(function(event){
 		var pressedReturn = (event.keyCode == '13');
 		if (isCommand && pressedReturn) { // Command + return
-			add_todo();
+			this.add_todo();
 		} else if (pressedReturn) { // Return
 			var visible_todos = $('#todo_list .todo').filter(function(){return $(this).css('display') != 'none';});
 			if (visible_todos.length > 0) {
@@ -89,4 +91,4 @@ $(document).ready(function(){
 			}
 		}
 	});
-});
+};

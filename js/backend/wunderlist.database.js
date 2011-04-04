@@ -601,6 +601,8 @@ wunderlist.createTask = function(name, list_id, timestamp)
 	
 	this.append_meta_tags(alltags);
 	
+	print(this.meta_tags);
+	
 	if(timestamp == '') timestamp = 0;
 
     // Get current position

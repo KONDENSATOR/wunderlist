@@ -1,4 +1,6 @@
-$(document).ready(function(){
+var footer = {};
+
+footer.init = function(){
 	var function_expand = function(){
 		$('#footer').animate({
 			height: 140
@@ -28,4 +30,4 @@ $(document).ready(function(){
 	};
 	
 	$('#show_more').click(function_expand);
-});
+};
