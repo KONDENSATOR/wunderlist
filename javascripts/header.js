@@ -21,9 +21,11 @@ header.toggle_date = function() {
 header.add_todo = function() {
 	if ($('#input').val() != '') {
 		
+		var id = $('.todo').length;
+		
 		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
 		var todo_data = {
-			id: 1,
+			id: id,
 			opacity:opacity,
 			day: $('#day').html(),
 			month: $('#month').html(),
@@ -34,7 +36,7 @@ header.add_todo = function() {
 
 		$('.sortable').append(todo);
 		
-		$('#todo_XXX').slideDown("fast");
+		$('#todo_'+id).slideDown("fast");
 		$('.sortable').sortable('cancel');
 		
 		$('#input').val('');

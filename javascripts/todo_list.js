@@ -46,8 +46,8 @@ todo_list.setup_sortable = function() {
 				$('#todo_list .meta_data').slideUp("fast");
 			},
 			stop:function(){
-				this.just_dragged = true;
-				setTimeout("this.just_dragged = false;",100);
+				todo_list.just_dragged = true;
+				setTimeout("todo_list.just_dragged = false;",100);
 			},
 			update:function(){
 				var ids = [];
@@ -57,7 +57,7 @@ todo_list.setup_sortable = function() {
 
 				// Report the new order here.
 
-				this.just_dragged = true;
+				todo_list.just_dragged = true;
 				setTimeout("todo_list.just_dragged = false;",100);
 			}
 		});
