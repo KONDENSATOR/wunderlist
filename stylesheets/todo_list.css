@@ -9,14 +9,7 @@
 .sortable li {
 	margin:0px;
 	padding:0px;
-	height: 85px;
-}
-
-.keynav_box {
-  
-}
-.keynav_focusbox {
-	margin-left: 50px;
+/*	height: 85px;*/
 }
 
 .todo .timer {
