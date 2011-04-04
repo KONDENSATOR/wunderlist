@@ -11,6 +11,7 @@
 }
 
 header #date_holder {
+	overflow: hidden;
 	float: left;
 	margin-top: 9px;
 	margin-left: 9px;

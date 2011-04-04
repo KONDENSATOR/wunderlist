@@ -51,6 +51,8 @@ $(document).ready(function(){
 		}
 	});
 	
+	
+	
 	if (/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
 		$('#add_button').bind('touchend',add_todo);
 		$('#add_tooltip').css('opacity',0.0);
