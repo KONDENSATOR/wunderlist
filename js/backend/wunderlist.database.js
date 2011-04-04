@@ -141,8 +141,7 @@ var meta = {
 	}
 };
 
-$(function()
-{
+$(function() {
 	wunderlist.initAppTitle();
 	wunderlist.initDatabase();
 	
@@ -248,9 +247,8 @@ wunderlist.fetch_all_meta_tags = function(type) {
  *
  * @author Christian Reber
  */
-wunderlist.initAppTitle = function()
-{
-	document.title = 'Awsomelist';
+wunderlist.initAppTitle = function() {
+	document.title = 'Awesomelist';
 }
 
 
@@ -260,8 +258,7 @@ wunderlist.initAppTitle = function()
  *
  * @author Dennis Schneider, Daniel Marschner, Christian Reber
  */
-wunderlist.initDatabase = function()
-{
+wunderlist.initDatabase = function() {
 	var filepath = Titanium.Filesystem.getFile(Titanium.Filesystem.getApplicationDataDirectory(), 'wunderlist.db');
 	this.database = Titanium.Database.openFile(filepath);
 

@@ -48,8 +48,13 @@ header.add_todo = function() {
 	}
 }
 
+header.keywords = function() {
+	var data = wunderlist.meta_tags;
+}
+
 header.init = function() {
-	var data = ['#Finansliv','#iPhoneguiden','#MinaSidor','#BytBil','@Robin','@Fredrik','@Victor','@Andreas'];
+	var data = this.keywords();
+	
 	$('#input').autocomplete(data,{
 			multiple: true,
 			multipleSeparator: " "
