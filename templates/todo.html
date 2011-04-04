@@ -1,0 +1,19 @@
+<script id="todo_header_template" type="text/html">
+<li>
+	<article class="todo rounded gray_gradient keynav_box" id="todo_{{ id }}">
+		<div class="timer">
+			<div class="lamp start"></div>
+			<div class="lamp paus"></div>
+			<div class="lamp stop"></div>
+		</div>
+		<div class="date_holder">
+			<div class="day">{{ day }}</div>
+			<div class="month">{{ month }}</div>
+		</div>
+		<div class="description_holder" onclick="show_meta('#meta_todo_{{ id }}')">
+			<h1>{{ message }}</h1>
+		</div>
+	</article>
+	<div id="meta_todo_{{ id }}" class="meta_data shadow rounded"></div>
+</li>
+</script>
