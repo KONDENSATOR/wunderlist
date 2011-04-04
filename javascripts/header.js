@@ -18,6 +18,17 @@ header.toggle_date = function() {
 	}
 }
 
+header.set_today = function() {
+	var api = $(":date").data("dateinput");
+	api.today();
+	$('#input').blur();
+	$('#input').focus();
+}
+
+header.focus_input = function() {
+	$('#input').focus();
+}
+
 header.add_todo = function() {
 	if ($('#input').val() != '') {
 		
@@ -87,9 +98,20 @@ header.init = function() {
 	});
 	
 	$('#input').keydown(function(event) {
-		var pressedReturn = (event.keyCode == '13');
-		if (isCommand && pressedReturn) { // Command + return
-			header.add_todo();
+		if (isCommand) {
+			var pressed_return = (event.keyCode == '13');
+			var pressed_d = (event.keyCode == '68');
+			var pressed_l = (event.keyCode == '76');
+			var pressed_plus = (event.keyCode == '189' || event.keyCode == '107');
+			var pressed_minus = (event.keyCode == '191' || event.keyCode == '109');
+			
+			if (pressed_return) { // Command + return
+				header.add_todo();
+			} else if (pressed_d) {
+				header.set_today();
+			} else if (pressed_l) {
+				
+			}
 		}
 	});
 	
