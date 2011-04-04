@@ -34,8 +34,8 @@ todo_list.activate_filter = function(filter_string) {
 	if (filter_string == '') {
 		$('#todo_list li').slideDown("fast");
 	} else {
-		$('#todo_list li').not(':contains('+filter_string+')').slideUp("fast");
-		$('#todo_list li:contains('+filter_string+')').slideDown("fast");
+		$('#todo_list li').not(':contains("'+filter_string+'")').slideUp("fast");
+		$('#todo_list li:contains("'+filter_string+'")').slideDown("fast");
 	}
 }
 

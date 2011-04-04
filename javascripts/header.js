@@ -93,11 +93,15 @@ header.init = function() {
 	    if(e.which == 93 && isCommand == true) {return false;}
 	});
 	
-	$('#input').keydown(function(event){
+	$('#input').keydown(function(event) {
 		var pressedReturn = (event.keyCode == '13');
 		if (isCommand && pressedReturn) { // Command + return
 			header.add_todo();
-		} else if (pressedReturn) { // Return
+		}
+	});
+	
+	$('#input').keyup(function(event){
+		if (event.keyCode == '13') { // Return
 			var visible_todos = $('#todo_list .todo').filter(function(){return $(this).css('display') != 'none';});
 
 			// TODO: Key navigation
@@ -105,9 +109,9 @@ header.init = function() {
 			// 	$('#todo_list .todo').keynav('keynav_focusbox','keynav_box');
 			// }
 		} else {
-			if ($('#input').val() == '' || window.lastSearchTime != null) {
+			if (window.lastSearchTime != null) {
 				var thisTime = new Date();
-				if ((thisTime - window.lastSearchTime) > 250) {
+				if ((thisTime - window.lastSearchTime) > 50) {
 					window.lastSearchTime = thisTime;
 					todo_list.activate_filter();
 				}
