@@ -1,4 +1,145 @@
-var wunderlist = wunderlist || {};
+var wunderlist = wunderlist || {
+	meta_tags:null
+};
+
+var p = Titanium.API.debug;
+
+function print(obj){
+	var ostring = Titanium.JSON.stringify(obj);
+	
+	Titanium.API.debug(ostring);
+}
+
+var meta = {
+	types:{
+		/**
+		 * Meta definitions
+		 *
+		 * @author Fredrik Andersson
+		 */
+		defs: {
+			times: 	{ 	regex:['(§\[[^\\]]+\\])'] },
+			tags: 	{ 	regex:['(#\[[^\\]]+\\])','(#[^\\s]+)'] },
+			users: 	{ 	regex:['(@[^\\s]+)'] },
+			emails: { 	regex:['((\\w+[\\-\\.])*\\w+@(\\w+\\.)+[A-Za-z]+)'] },
+			authors:{	regex:['(\\>[^\\s]+)'] }
+		},
+		
+		/**
+		 * Fetcn value for definition named
+		 *
+		 * @author Fredrik Andersson
+		 */
+		named:function(name){
+			return this.defs[name];
+		},
+		/**
+		 * Iterate through all key, values
+		 *
+		 * @author Fredrik Andersson
+		 */
+		each:function(f) {
+			for(var key in this.defs) {
+				f(key, this.defs[key]);
+			}
+		},
+		
+		/**
+		 * Iterate through all keys
+		 *
+		 * @author Fredrik Andersson
+		 */
+		each_key:function(f) {
+			for(var key in this.defs) {
+				f(key);
+			}
+		},
+		
+		/**
+		 * Iterate through all and return array
+		 *
+		 * @author Fredrik Andersson
+		 */
+		to_array:function(f) {
+			var result = [];
+			this.each(function(key, val) {
+				result.push(f(key,val));
+			});
+			return result;
+		}
+	},
+
+	/**
+	 * Create regex object for type pattern.
+	 *
+	 * @author Fredrik Andersson
+	 */
+	regexfor:function(type) {		
+		var regex_string = "(^|\\s)(" + this.meta.types.named(type).regex.join('|') + ")";
+		
+		return new RegExp(regex_string);
+	},
+	
+	/**
+	 * Create one large regex from all regexes.
+	 *
+	 * @author Fredrik Andersson
+	 */
+	regex:function(){
+		if(this.regex_obj == null) {
+			var regex_str = "(^|\\s)(" + this.types.to_array(function(name, value) { 
+					return value.regex.join('|');
+				}).join('|') + ")";
+			this.regex_obj = new RegExp(regex_str);
+		}
+		return this.regex_obj;
+	},
+	
+	/**
+	 * Extracts meta from textstring. All metas are returned in
+	 * lowercase.
+	 *
+	 * @author Fredrik Andersson
+	 */
+	meta_from_string:function(str){
+		
+		var regex = meta.regex();
+		var text = str;
+		var match = regex.exec(text);
+		var matches = [];
+		
+		// Collect metas
+		while(match != null){
+			// Titanium.API.debug("got match");
+			var result = trim(match[0],"\\s\\.,");
+
+			matches.push(result);
+
+			text = text.replace(result, "");
+			match = regex.exec(text);
+		}
+
+		var result = { };
+		
+		this.types.each_key(function(key){ result[key] = []; });
+		
+		var on_regex = this.regexfor;
+		
+		var on_each = function(key) {
+			if(itm.match(on_regex(key))){
+				result[key].push(itm);
+			}
+		};
+		
+		for(var m in matches) {
+			var itm = matches[m].toLowerCase();
+			
+			this.types.each_key(on_each);
+		}
+				
+		return result;
+	}
+};
 
 $(function()
 {
@@ -31,49 +172,13 @@ function rtrim(str, chars) {
 	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
 }
 
-/**
- * Extracts tags from textstring
- *
- * @author Fredrik Andersson
- */
-wunderlist.fetchTagsFromString = function(str) {
-	var regex = /(^|\s)((@\[[^\]]+\])|(#\[[^\]]+\])|(@[^\s]+)|(#[^\s]+)|((\w+[\-\.])*\w+@(\w+\.)+[A-Za-z]+))/;
-	var text = str;
-	var match = regex.exec(text);
-	var matches = [];
-	
-	while(match != null){
-		var result = trim(match[0],"\\s\\.,");
-				
-		matches.push(result);
-		
-		text = text.replace(result, "");
-		match = regex.exec(text);
-	}
-	
-	var result = { users:[], tags:[], emails:[] };
-	
-	for(var m in matches) {
-		var itm = matches[m].toLowerCase();
-		
-		if(itm.match(/^@/)){
-			result.users.push(itm);
-		} else if(itm.match(/^#/)){
-			result.tags.push(itm);
-		} else {
-			result.emails.push(itm);
-		}
-	}
-		
-	return result;
-}
 
 /**
  * Add tags to this.users, this.tags, this.emails
  *
  * @author Fredrik Andersson
  */
-wunderlist.addTagsToList = function(tags) {
+wunderlist.append_meta_tags = function(tags) {
 	var addTags = function(src, dest) {
 		for(var i in src) {
 			var tag = src[i];
@@ -86,9 +191,12 @@ wunderlist.addTagsToList = function(tags) {
 		}
 	}
 	
-	addTags(tags.users, this.users);
-	addTags(tags.tags, this.tags);
-	addTags(tags.emails, this.emails);
+	for(var key in tags) {
+		if(this.meta_tags[key] == null) {
+			this.meta_tags[key] = {};
+		}
+		addTags(tags[key], this.meta_tags[key]);
+	}
 }
 
 /**
@@ -97,7 +205,7 @@ wunderlist.addTagsToList = function(tags) {
  *
  * @author Fredrik Andersson
  */
-wunderlist.getAllOfMeta = function(type) {
+wunderlist.fetch_all_meta_tags = function(type) {
 	var sql  = "SELECT " + type + " ";
 	    sql += "FROM tasks ";
 
@@ -109,17 +217,22 @@ wunderlist.getAllOfMeta = function(type) {
 		while(resultSet.isValidRow()) {
 			var tags = resultSet.field(0);
 			
-			tags = tags.split(',');
-			
-			for(var i in tags) {
-				var value = tags[i];
+			var metas = Titanium.JSON.parse(tags);
+						
+			for(var key in metas) {
+				if(result[key] == null){
+					result[key] = {};
+				}
 				
-				if(result[value] == null) {
-					result[value] = 1;
-					// Titanium.API.debug("created " + value)
-				} else {
-					result[value] += 1;
-					// Titanium.API.debug("    add " + value)
+				for(var subkey in metas[key]){
+					
+					var meta_value = metas[key][subkey];
+										
+					if(result[key][meta_value] == null){
+						result[key][meta_value] = 1;
+					} else {
+						result[key][meta_value] += 1;
+					}
 				}
 			}
 			
@@ -137,8 +250,10 @@ wunderlist.getAllOfMeta = function(type) {
  */
 wunderlist.initAppTitle = function()
 {
-	document.title = 'Awsomelist ';
+	document.title = 'Awsomelist';
 }
+
+
 
 /**
  * Creates the database file and all tables
@@ -160,12 +275,12 @@ wunderlist.initDatabase = function()
 	}
 	
 	this.database.execute("CREATE TABLE IF NOT EXISTS lists (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, position INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, inbox INTEGER DEFAULT 0)");
-	this.database.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, list_id TEXT, note TEXT DEFAULT '', date INTEGER DEFAULT 0, done_date INTEGER DEFAULT 0, done INTEGER DEFAULT 0, position INTEGER DEFAULT 0, important INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, 'tags' STRING DEFAULT '', 'users' STRING DEFAULT '')");
+	this.database.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, online_id INTEGER DEFAULT 0, name TEXT, list_id TEXT, note TEXT DEFAULT '', date INTEGER DEFAULT 0, done_date INTEGER DEFAULT 0, done INTEGER DEFAULT 0, position INTEGER DEFAULT 0, important INTEGER DEFAULT 0, version INTEGER DEFAULT 0, deleted INTEGER DEFAULT 0, 'meta' TEXT DEFAULT '')");
 
 	// Initialize tags lookup
-	this.tags = this.getAllOfMeta('tags');
-	this.users = this.getAllOfMeta('users');
-	this.emails = this.getAllOfMeta('emails');	
+	this.meta_tags = this.fetch_all_meta_tags('meta');
+	
+	print(this.meta_tags);
 }
 
 /**
@@ -207,9 +322,7 @@ wunderlist.update_120 = function() {
 
 wunderlist.update_120_kondensator = function() {
 	try {
-		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'tags' TEXT DEFAULT ''");
-		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'users' TEXT DEFAULT ''");		
-		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'emails' TEXT DEFAULT ''");		
+		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'meta' TEXT DEFAULT ''");
 	}
 	catch(err) {}
 }
@@ -484,9 +597,9 @@ wunderlist.query = function(query)
  */
 wunderlist.createTask = function(name, list_id, timestamp)
 {
-	var alltags = this.fetchTagsFromString(name);
+	var alltags = meta.meta_from_string(name);
 	
-	this.addTagsToList(alltags);
+	this.append_meta_tags(alltags);
 	
 	if(timestamp == '') timestamp = 0;
 
@@ -502,14 +615,12 @@ wunderlist.createTask = function(name, list_id, timestamp)
 	else
 		var new_position = 0;
 
- 	this.database.execute("INSERT INTO tasks (name, list_id, date, position, version, tags, users, emails) VALUES ('"
+ 	this.database.execute("INSERT INTO tasks (name, list_id, date, position, version, meta) VALUES ('"
  		+ name + "', '" 
 		+ list_id + "', '" 
 		+ timestamp + "', '" 
 		+ new_position + "', '0','" 
-		+ alltags.tags.join(',') + "','" 
-		+ alltags.users.join(',') + "','" 
-		+ alltags.emails.join(',') + "')");
+		+ Titanium.JSON.stringify(alltags) + "')");
 
 	wunderlist.updateCount(list_id);
 
@@ -648,17 +759,16 @@ wunderlist.deleteElementForever = function(online_id, type)
  */
 wunderlist.updateTask = function(task_id, name, date)
 {
-	var alltags = this.fetchTagsFromString(name);
-	this.addTagsToList(alltags);
+	var alltags = meta.meta_from_string(name);
+	
+	this.append_meta_tags(alltags);
 	
 	if(date == '') date = 0;
 	timer.stop().set(15).start();
-	this.database.execute("UPDATE tasks SET name = ?, date = ?, version = version + 1, tags = ?, users = ?, emails = ? WHERE id = ?", 
+	this.database.execute("UPDATE tasks SET name = ?, date = ?, version = version + 1, meta = ? WHERE id = ?", 
 		name, 
 		date, 
-		alltags.tags.join(','), 
-		alltags.users.join(','),
-		alltags.emails.join(','),
+		Titanium.JSON.stringify(alltags), 
 		task_id);
 }
 
@@ -669,11 +779,12 @@ wunderlist.updateTask = function(task_id, name, date)
  */
 wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
-	var alltags = this.fetchTagsFromString(name);
-	this.addTagsToList(alltags);
+	var alltags = meta.meta_from_string(name);
+	
+	this.append_meta_tags(alltags);
 
 	if(date == '') date = 0;
-	this.database.execute("UPDATE tasks SET name = ?, date = ?, done = ?, list_id = ?, position = ?, important = ?, done_date = ?, deleted = ?, version = ?, note = ?, tags = ?, users = ?, emails = ? WHERE online_id = ?", 
+	this.database.execute("UPDATE tasks SET name = ?, date = ?, done = ?, list_id = ?, position = ?, important = ?, done_date = ?, deleted = ?, version = ?, note = ?, meta = ? WHERE online_id = ?", 
 		name, 
 		date, 
 		done, 
@@ -684,9 +795,7 @@ wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id,
 		deleted, 
 		version, 
 		note,
-		alltags.tags.join(','), 
-		alltags.users.join(','),
-		alltags.emails.join(','),
+		Titanium.JSON.stringify(alltags),
 		online_id);
 }
 
@@ -697,12 +806,12 @@ wunderlist.updateTaskByOnlineId = function(online_id, name, date, done, list_id,
  */
 wunderlist.createTaskByOnlineId = function(online_id, name, date, done, list_id, position, important, done_date, deleted, version, note)
 {
-	var alltags = this.fetchTagsFromString(name);
+	var alltags = meta.meta_from_string(name);
 	
-	this.addTagsToList(alltags);
+	this.append_meta_tags(alltags);
 
 	if(date == '') date = 0;
-	this.database.execute("INSERT INTO tasks (online_id, name, date, done, list_id, position, important, done_date, deleted, version, note, tags, users, emails) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+	this.database.execute("INSERT INTO tasks (online_id, name, date, done, list_id, position, important, done_date, deleted, version, note, meta) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
 		online_id, 
 		name, 
 		date, 
@@ -714,9 +823,7 @@ wunderlist.createTaskByOnlineId = function(online_id, name, date, done, list_id,
 		deleted, 
 		version, 
 		note,
-		alltags.tags.join(','), 
-		alltags.users.join(','),
-		alltags.emails.join(',')
+		Titanium.JSON.stringify(alltags)
 		);
 }
 
