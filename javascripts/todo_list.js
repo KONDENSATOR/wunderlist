@@ -1,5 +1,4 @@
 var todo_list = {
-	last_cloud_tag:'',
 	just_dragged:false
 };
 
@@ -25,11 +24,10 @@ todo_list.activate_filter = function(filter_string) {
 		if (tag_is_aleady_selected) {
 			$('.cloud').animate({opacity:1.0}, 300, function(){});
 			filter_string = '';
-			this.last_cloud_tag = '';
 		} else {
 			$('.cloud').not(':contains('+filter_string+')').animate({opacity:0.5}, 300, function(){});
 			$('.cloud:contains('+filter_string+')').animate({opacity:1.0}, 300, function(){});
-			this.last_cloud_tag = filter_string;
+			this.todo_list = filter_string;
 		}
 	}
 	
@@ -60,7 +58,7 @@ todo_list.setup_sortable = function() {
 				// Report the new order here.
 
 				this.just_dragged = true;
-				setTimeout("this.just_dragged = false;",100);
+				setTimeout("todo_list.just_dragged = false;",100);
 			}
 		});
 }
