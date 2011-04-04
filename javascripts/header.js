@@ -50,17 +50,19 @@ header.add_todo = function() {
 	}
 }
 
-header.keywords = function() {
-	var data = wunderlist.meta_tags;
-}
 
-header.init = function() {
-	var data = this.keywords();
+header.keywords_updated = function() {
+	
+	var data = wunderlist.keywords();
 	
 	$('#input').autocomplete(data,{
 			multiple: true,
 			multipleSeparator: " "
 	});
+}
+
+header.init = function() {
+	wunderlist.bindto_keywords_updated(header.keywords_updated);
 	
 	$("header :date").dateinput({
 		value: new Date(),

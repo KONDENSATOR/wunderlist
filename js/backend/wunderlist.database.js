@@ -1,5 +1,6 @@
 var wunderlist = wunderlist || {
-	meta_tags:null
+	meta_tags:null,
+	bound_keywords_updated:[]
 };
 
 var p = Titanium.API.debug;
@@ -18,11 +19,11 @@ var meta = {
 		 * @author Fredrik Andersson
 		 */
 		defs: {
-			times: 	{ 	regex:['(§\[[^\\]]+\\])'] },
-			tags: 	{ 	regex:['(#\[[^\\]]+\\])','(#[^\\s]+)'] },
-			users: 	{ 	regex:['(@[^\\s]+)'] },
-			emails: { 	regex:['((\\w+[\\-\\.])*\\w+@(\\w+\\.)+[A-Za-z]+)'] },
-			authors:{	regex:['(\\>[^\\s]+)'] }
+			times: 	{ 	keyword:false, regex:['(§\[[^\\]]+\\])'] },
+			tags: 	{ 	keyword:true, regex:['(#\[[^\\]]+\\])','(#[^\\s]+)'] },
+			users: 	{ 	keyword:true, regex:['(@[^\\s]+)'] },
+			emails: { 	keyword:true, regex:['((\\w+[\\-\\.])*\\w+@(\\w+\\.)+[A-Za-z]+)'] },
+			authors:{	keyword:true, regex:['(\\>[^\\s]+)'] }
 		},
 		
 		/**
@@ -151,10 +152,10 @@ $(function() {
 	language.init();
 	account.init();
 	timer.init();
-	Menu.initializeTrayIcon();
+	// Menu.initializeTrayIcon();
 	sharing.init();
 	notifications.init();
-	share.init();
+	// share.init();
 });
 
 function trim(str, chars) {
@@ -171,6 +172,35 @@ function rtrim(str, chars) {
 	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
 }
 
+wunderlist.poke_keywords_updated_subscribers = function() {
+	for(var i in this.bound_keywords_updated) {
+		bound_keywords_updated[i]();
+	}
+}
+
+wunderlist.bindto_keywords_updated = function(func) {
+	this.bound_keywords_updated.push(func);
+	
+	if(this.meta_tags != null){
+		func();
+	}
+}
+
+/**
+ * Returns all valid keywords
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.keywords = function() {
+	var data = wunderlist.meta_tags;
+	var result = [];
+	
+	for(var key in data.tags){ result.push(key); }
+	for(var key in data.users){ result.push(key); }
+	for(var key in data.emails){ result.push(key); }
+	
+	return result;
+}
 
 /**
  * Add tags to this.users, this.tags, this.emails
@@ -196,6 +226,7 @@ wunderlist.append_meta_tags = function(tags) {
 		}
 		addTags(tags[key], this.meta_tags[key]);
 	}
+	this.poke_keywords_updated_subscribers();
 }
 
 /**
@@ -277,7 +308,7 @@ wunderlist.initDatabase = function() {
 	// Initialize tags lookup
 	this.meta_tags = this.fetch_all_meta_tags('meta');
 	
-	print(this.meta_tags);
+	this.poke_keywords_updated_subscribers();	
 }
 
 /**
