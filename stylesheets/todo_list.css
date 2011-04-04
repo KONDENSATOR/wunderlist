@@ -1,0 +1,112 @@
+.todo {
+	-webkit-box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+	border: 1px solid silver;
+	padding: 5px;
+	height: 65px;
+	margin-top: -5px;
+}
+
+.sortable li {
+	margin:0px;
+	padding:0px;
+	height: 85px;
+}
+
+.keynav_box {
+  
+}
+.keynav_focusbox {
+	margin-left: 50px;
+}
+
+.todo .timer {
+	float: right;
+	width: 20px;
+	height: 50px;
+	opacity: 0.5;
+	cursor: pointer;
+	
+	-webkit-transition-property:opacity;
+	-webkit-transition-duration: 0.15s, 0.15s;
+	-webkit-transition-timing-function: linear, ease-in;
+}
+
+.todo .timer:hover {
+	opacity: 1.0;
+}
+
+.todo .timer .lamp {
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-border-radius: 10px;
+	width: 15px;
+	height: 15px;
+	margin-top: 5px;
+}
+
+.todo .timer .start {
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(silver), to(green));
+	background: -webkit-linear-gradient(silver,green);
+}
+
+.todo .timer .paus {
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(silver), to(yellow));
+	background: -webkit-linear-gradient(silver,yellow);
+}
+
+.todo .timer .stop {
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(silver), to(red));
+	background: -webkit-linear-gradient(silver,red);
+}
+
+.todo .date_holder {
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+	float: left;
+	border: 1px solid black;
+	width: 65px;
+	height:65px;
+}
+
+.todo .date_holder .day {
+	height: 50px;
+	text-align: center;
+	font-size: 32px;
+	line-height:50px;
+	background-color: white;
+}
+
+.todo .date_holder .month {
+	height: 15px;
+	color: white;
+	font-size: 11px;
+	line-height:15px;
+	font-weight: bold;
+	text-align: center;
+	background-color: #A00;
+}
+
+.todo .description_holder {
+	float:left;
+	height:65px;
+	margin-left: 5px;
+	position: absolute;
+	left: 85px;
+	right: 50px;
+	line-height:65px;
+	cursor: pointer;
+}
+
+.todo .description_holder h1 {
+	font-size: 19px;
+}
+
+#todo_list .meta_data {
+	display:none;
+	padding: 5px;
+	height:100px;
+	border:1px solid silver;
+	background-color:rgba(255,255,255,0.5);
+	margin: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 0px;
+}

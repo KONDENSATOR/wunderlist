@@ -1,0 +1,30 @@
+body {
+	font: 14px "Lucida Grande", Lucida, Verdana, sans-serif;
+	background-image: url(../images/main_background.jpg);
+}
+
+header {
+	height: 65px;
+	border-bottom: 1px solid #BBB;
+	background-color:rgba(0,0,0,0.5);
+}
+
+#todo_list {
+	padding: 10px;
+	position: fixed;
+	bottom: 40px;
+	left: 0px;
+	right: 0px;
+	top: 65px;
+	overflow: auto;
+}
+
+footer {
+	background-color:rgba(0,0,0,0.5);
+	height: 40px;
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: hidden;
+}
