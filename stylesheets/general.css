@@ -1,0 +1,35 @@
+.rounded {
+	-webkit-border-radius: 5px;
+}
+
+.shadow {
+	-webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.5);
+}
+
+.gray_gradient {
+	background: -webkit-linear-gradient(white,silver);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(silver));
+}
+
+.tester {
+	border: 1px solid red;
+	background: green;
+}
+
+/* Custom Scrollbars */
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment  {
+	height: 5px;
+	display: block;
+	background-color: transparent;
+}
+::-webkit-scrollbar-thumb:vertical {
+	height: 25px;
+	background-color: rgba(0,0,0,0.5);
+	-webkit-border-radius: 6px;
+}

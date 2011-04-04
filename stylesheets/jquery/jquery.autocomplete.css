@@ -1,0 +1,48 @@
+.ac_results {
+	padding: 0px;
+	overflow: hidden;
+	z-index: 99999;
+	width: 150px;
+	padding-bottom: 10px;
+}
+
+.ac_results ul {
+	border: 1px solid black;
+	width: 150px;
+	list-style-position: outside;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	-webkit-border-radius: 5px;
+	-webkit-box-shadow: 0 3px 5px rgba(0,0,0,0.5);
+}
+
+.ac_results li {
+	/*background-color: rgba(0,0,0,0.5);*/
+	color: white;
+	margin: 0px;
+	padding: 2px 5px;
+	cursor: default;
+	display: block;
+	font: menu;
+	font-size: 12px;
+	line-height: 16px;
+	overflow: hidden;
+}
+
+.ac_loading {
+	background: white url('indicator.gif') right center no-repeat;
+}
+
+.ac_odd {
+	background-color: rgba(0,0,0,0.5);
+}
+
+.ac_even {
+	background-color: rgba(0,0,0,0.5);
+}
+
+.ac_over {
+	background-color: rgba(0,0,0,0.85);
+	color: white;
+}
