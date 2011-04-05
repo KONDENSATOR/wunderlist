@@ -21,7 +21,7 @@ footer.keywords_updated = function() {
 	$(".cloud").each(function(index,object){
 		$(object).callout({
 		    msg:footer.callout_contents_for_object(object),
-			todo_id:footer.clean($(object).attr('id'))
+			todo_id:$(object).attr('id').replace('cloud_','')
 		});
 		
 		$(object).bind('click',function(e){
