@@ -79,11 +79,11 @@ account.load = function() {
 account.loadInterface = function() {
 	if (register_dialog != undefined) $(register_dialog).dialog('close');
 	
-	Menu.initialize();
+	// Menu.initialize();
 	wunderlist.initLists();
-	filters.init();
-	openList();
-	makeListsDropable();
+	// filters.init();
+	// openList();
+	// makeListsDropable();
 
 	if (os == 'darwin')
 	{

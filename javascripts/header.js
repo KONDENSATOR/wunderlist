@@ -61,12 +61,19 @@ header.add_todo = function() {
 	}
 }
 
-header.init = function() {
-	var data = ['#Finansliv','#iPhoneguiden','#MinaSidor','#BytBil','@Robin','@Fredrik','@Victor','@Andreas'];
+
+header.keywords_updated = function() {
+	
+	var data = wunderlist.keywords();
+	
 	$('#input').autocomplete(data,{
 			multiple: true,
 			multipleSeparator: " "
 	});
+}
+
+header.init = function() {
+	wunderlist.bindto_keywords_updated(header.keywords_updated);
 	
 	$("header :date").dateinput({
 		value: new Date(),

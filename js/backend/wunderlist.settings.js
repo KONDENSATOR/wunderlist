@@ -158,8 +158,8 @@ $(function()
 	if (os == 'darwin')
 	{
 		$(document).bind('keydown', shortcutkey + '+q', function (event) {
-			if (listShortcutListener == 0)
-				Titanium.App.exit();
+			// if (listShortcutListener == 0)
+			// 	Titanium.App.exit();
 		});
 	}
 	
