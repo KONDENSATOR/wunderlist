@@ -262,7 +262,6 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 			type: 'POST',
 			data: data,
 			success: function(response_data, text, xhrobject) {
-				switchSyncSymbol(xhrobject.status);
 
 				if(xhrobject.status == 200) {
 					var response = eval('(' + response_data + ')');
@@ -335,7 +334,6 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 	}
 
 	setTimeout(function() {sync.isSyncing = false;}, 2000);	
-	stopSyncAnimation();
 
 	// The callback for the sharing functionality
 	if (list_id > 0)

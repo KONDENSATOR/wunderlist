@@ -11,5 +11,6 @@ $(document).ready(function(){
 	sync.init();
 	wunderlist.init();
 	wunderlist.getTasks();
+	wunderlist.initLists();
 	sync.perform_syncronization();
 });

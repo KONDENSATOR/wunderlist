@@ -1,21 +1,18 @@
 var footer = {};
 
 
-footer.keywords_updated = function() {
-	var data = wunderlist.keywords();
+footer.lists_updated = function() {
+	var data = wunderlist.lists;
 	
 	$('.cloud').remove();
 
 	for(var keyword in data) {
 		var cloud_data = {
-			tag:data[keyword],
-			id:'1'
+			tag:data[keyword].name
 		};
 		
 		var cloud = ich.footer_cloud_template(cloud_data);
-		
-		p(cloud_data);
-		
+				
 		$('#footer').append(cloud);	
 	}
 
@@ -67,7 +64,10 @@ footer.callout_contents_for_object = function(object) {
 	
 	var callout_contents = '<input class="add_group_member_input" id="member_input_'+group+'"><div class="add_member_button" onclick="footer.add_user_to_group(\''+group+'\');">+</div><br />';
 	
-	var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
+	// var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
+	
+	var users = wunderlist.getSharedEmails(group);
+	
 	for (var i=0; i < users.length; i++) {
 		callout_contents += '<div class="group_member">'+users[i]+'<div class="remove_member_button" onclick="footer.remove_user_from_group(\''+users[i]+'\',\''+group+'\');">–</div></div>';
 	};
@@ -76,7 +76,8 @@ footer.callout_contents_for_object = function(object) {
 }
 
 footer.init = function(){
-	wunderlist.bindto_keywords_updated(footer.keywords_updated);
+	
+	wunderlist.bindto_lists_updated(footer.lists_updated);
 	
 	var function_expand = function(){
 		$('#footer').animate({
