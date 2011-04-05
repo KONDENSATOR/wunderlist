@@ -3,5 +3,5 @@ $(document).ready(function(){
 	todo_list.init();
 	footer.init();
 	
-	wunderlist.getTasksByUser("@fredrik");
+	wunderlist.getTasks();
 });

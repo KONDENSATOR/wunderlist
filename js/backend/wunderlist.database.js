@@ -560,6 +560,12 @@ wunderlist.getTasksByUser = function(user_name)
 	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
 }
 
+wunderlist.getTasks = function() {
+	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE deleted = 0 AND done = 0 ORDER BY important DESC, position ASC");
+
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
+}
+
 
 /**
  * Checks for existing list
