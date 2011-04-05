@@ -21,7 +21,7 @@ footer.keywords_updated = function() {
 	$(".cloud").each(function(index,object){
 		$(object).callout({
 		    msg:footer.callout_contents_for_object(object),
-			todo_id:$(object).attr('id').replace('#','')
+			todo_id:footer.clean($(object).attr('id'))
 		});
 		
 		$(object).bind('click',function(e){
@@ -32,19 +32,23 @@ footer.keywords_updated = function() {
 	});
 }
 
+footer.clean = function (string) {
+	return string.replace('#','').replace(/@/g,'_at_').replace('/','_slash_');
+}
+
 footer.showcallout = function (object) {
-	$('.callout_main').not('#callout_'+$(object).attr('id').replace('#','')).animate({opacity:0.0}, 300, function(){
-		$('.callout_main').not('#callout_'+$(object).attr('id').replace('#','')).css('display','none');
+	$('.callout_main').not('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:0.0}, 300, function(){
+		$('.callout_main').not('#callout_'+footer.clean($(object).attr('id'))).css('display','none');
 	});
 	
-	if ($('#callout_'+$(object).attr('id').replace('#','')).css('opacity') == 0.0) {
-		var top = $('#todo_list').position().top + $('#todo_list').height() - $('#callout_'+$(object).attr('id').replace('#','')).height() + 30;
-		$('#callout_'+$(object).attr('id').replace('#','')).css('top',top);
-		$('#callout_'+$(object).attr('id').replace('#','')).css('display','block');
-		$('#callout_'+$(object).attr('id').replace('#','')).animate({opacity:1.0}, 300, function(){});
+	if ($('#callout_'+footer.clean($(object).attr('id'))).css('opacity') == 0.0) {
+		var top = $('#todo_list').position().top + $('#todo_list').height() - $('#callout_'+footer.clean($(object).attr('id'))).height() + 30;
+		$('#callout_'+footer.clean($(object).attr('id'))).css('top',top);
+		$('#callout_'+footer.clean($(object).attr('id'))).css('display','block');
+		$('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:1.0}, 300, function(){});
 	} else {
-		$('#callout_'+$(object).attr('id').replace('#','')).animate({opacity:0.0}, 300, function(){
-			$('#callout_'+$(object).attr('id').replace('#','')).css('display','none');
+		$('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:0.0}, 300, function(){
+			$('#callout_'+footer.clean($(object).attr('id'))).css('display','none');
 		});
 	}
 }
