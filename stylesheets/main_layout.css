@@ -3,8 +3,21 @@ body {
 	background-image: url(../images/main_background.jpg);
 }
 
+#helper {
+	height: 90px;
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: -100px;
+	background-color:rgba(0,0,0,0.5);
+}
+
 header {
-	height: 65px;
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	height: 85px;
 	border-bottom: 1px solid #BBB;
 	background-color:rgba(0,0,0,0.5);
 }
@@ -15,7 +28,7 @@ header {
 	bottom: 40px;
 	left: 0px;
 	right: 0px;
-	top: 65px;
+	top: 85px;
 	overflow: auto;
 }
 

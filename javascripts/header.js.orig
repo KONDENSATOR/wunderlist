@@ -40,6 +40,39 @@ header.focus_input = function() {
 	$('#input').focus();
 }
 
+<<<<<<< HEAD
+=======
+header.add_todo = function() {
+	if ($('#input').val() != '') {
+		
+		var id = $('.todo').length;		
+		
+		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
+		var todo_data = {
+			id: id,
+			opacity:opacity,
+			day: $('#day').html(),
+			month: $('#month').html(),
+			message: $('#input').val()
+		};
+		
+		var todo = ich.todo_header_template(todo_data);
+
+		$('.sortable').append(todo);
+		
+		$('#todo_'+id).slideDown("fast");
+		$('.sortable').sortable('cancel');
+		
+		$('#input').val('');
+		$('#day').html('');
+		$('#month').html('');
+		$('#date').val('');
+		$('#date_holder').css('opacity',0.5);
+		
+		todo_list.activate_filter();
+		todo_list.setup_sortable();
+	}
+}
 
 header.hide_help = function () {
 	$('#helper_button').css('display','block');
@@ -57,6 +90,7 @@ header.show_help = function () {
 	$('#header').animate({top:90},300,function(){});
 	$('#todo_list').animate({top:175},300,function(){});
 }
+>>>>>>> 479acf77599d0777736b9ea2d8de89435ded91ed
 
 header.keywords_updated = function() {
 	var data = wunderlist.keywords();

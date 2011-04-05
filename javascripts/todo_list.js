@@ -103,8 +103,13 @@ todo_list.add_todo = function() {
 
 todo_list.todo_items_updated = function() {
 	
-	for(var item in wunderlist.todo_items) {
+	for(var i in wunderlist.todo_items) {
+		var itm = wunderlist.todo_items[i];
 		
+		var date_day = itm.date;
+		var date_month = itm.date;
+		
+		todo_list.add_item(itm.id, itm.date == 0 ? 0.25 : 1.0, date_day, date_month, itm.name);
 	}
 	
 	todo_list.activate_filter();
@@ -113,6 +118,4 @@ todo_list.todo_items_updated = function() {
 
 todo_list.init = function() {
 	wunderlist.bindto_todo_items_updated(todo_list.todo_items_updated);
-	
-	this.setup_sortable();
 }

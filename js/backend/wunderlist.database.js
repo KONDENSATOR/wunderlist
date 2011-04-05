@@ -529,6 +529,10 @@ wunderlist.getTasksByResultSet = function(resultTaskSet){
 	return tasks;
 }
 
+wunderlist.updateTodoListItems = function(items) {
+	
+}
+
 /**
  * Gets the tasks of the specified list
  * 
@@ -539,7 +543,7 @@ wunderlist.getTasksByListId = function(list_id)
 {
 	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE list_id = ? AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", list_id);
 
-	return this.getTasksByResultSet(resultTaskSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
 }
 
 /**
@@ -551,7 +555,7 @@ wunderlist.getTasksByUser = function(user_name)
 {
 	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE name LIKE '%?%' AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", user_name);
 
-	return this.getTasksByResultSet(resultTaskSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
 }
 
 
