@@ -15,6 +15,19 @@ footer.lists_updated = function() {
 				
 		$('#footer').append(cloud);	
 	}
+
+	$(".cloud").each(function(index,object){
+		$(object).callout({
+		    msg:footer.callout_contents_for_object(object),
+			todo_id:$(object).attr('id').replace('#','')
+		});
+		
+		$(object).bind('click',function(e){
+			if (window.isCommand) {
+				footer.showcallout(object);
+			}
+		});
+	});
 }
 
 footer.showcallout = function (object) {
@@ -86,15 +99,4 @@ footer.init = function(){
 	};
 	
 	$('#show_more').click(function_expand);
-	
-	$(".cloud").each(function(index,object){
-		$(object).callout({
-		    msg:footer.callout_contents_for_object(object),
-			todo_id:$(object).attr('id').replace('#','')
-		});
-		
-		$(object).bind('dblclick',function(e){
-			footer.showcallout(object);
-		});
-	});
 };

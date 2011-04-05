@@ -96,15 +96,15 @@ header.init = function() {
 	}
 	
 	// Setup command key listener
-	var isCommand = false;$(document).keyup(function (e) {
-		if(e.which == 91 || e.which == 93) isCommand=false;
+	window.isCommand = false;$(document).keyup(function (e) {
+		if(e.which == 91 || e.which == 93) window.isCommand=false;
 	}).keydown(function (e) {
-	    if(e.which == 91) isCommand=true;
-	    if(e.which == 93 && isCommand == true) {return false;}
-		if (isCommand && e.which == 76) { // Command + L
+	    if(e.which == 91) window.isCommand=true;
+	    if(e.which == 93 && window.isCommand == true) {return false;}
+		if (window.isCommand && e.which == 76) { // Command + L
 			header.focus_input();
 		}
-		if (isCommand && e.which == 74) { // Command + J
+		if (window.isCommand && e.which == 74) { // Command + J
 			if ($('#helper_button').css('display') == 'none') {
 				header.hide_help();
 			} else {
@@ -122,7 +122,7 @@ header.init = function() {
 	});
 	
 	$('#input').keydown(function(event) {
-		if (isCommand) {
+		if (window.isCommand) {
 			var pressed_return = (event.keyCode == '13');
 			var pressed_d = (event.keyCode == '68');
 			var pressed_l = (event.keyCode == '76');
