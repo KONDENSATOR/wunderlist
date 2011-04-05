@@ -459,7 +459,7 @@ wunderlist.truncateDatabase = function() {
  * @modified Fredrik Andersson
  */
 wunderlist.initLists = function() {
-	var listsResultSet = this.database.execute("SELECT lists.id, lists.name, lists.inbox, (SELECT COUNT(tasks.id) FROM tasks WHERE tasks.list_id = lists.id AND deleted = 0 AND done = 0) as taskCount, shared FROM lists WHERE lists.deleted = 0 ORDER BY lists.inbox DESC, lists.position ASC");
+	var listsResultSet = this.database.execute("SELECT lists.id, lists.online_id, lists.name, lists.inbox, (SELECT COUNT(tasks.id) FROM tasks WHERE tasks.list_id = lists.id AND deleted = 0 AND done = 0) as taskCount, shared FROM lists WHERE lists.deleted = 0 ORDER BY lists.inbox DESC, lists.position ASC");
 
 	wunderlist.updateLists(wunderlist.getListsByResultSet(listsResultSet));
 
@@ -972,19 +972,33 @@ wunderlist.setListToShared = function(list_id)
 	return true;
 }
 
+
+wunderlist.getListByName = function(name) {
+	for(var i in this.lists) {
+		var itm = this.lists[i];
+		
+		if(itm.name == name){
+			return itm;
+		}
+	}
+}
+
 /**
  * Get the emails for the shared list from the server
  *
  * @original wunderlist.sharing.js Dennis Schneider
  * @author Fredrik Andersson
  */
-wunderlist.getSharedEmails = function(list_id)
+wunderlist.getSharedEmails = function(list_name)
 {
+	var list_obj = wunderlist.getListByName(list_name);
+	var list_id = wunderlist.id;
 	var data         = {};
+	
 	user_credentials = wunderlist.getUserCredentials();
 	data['email']    = user_credentials['email'];
 	data['password'] = user_credentials['password'];
-	data['list_id']  = wunderlist.getOnlineIdByListId(list_id);
+	data['list_id']  = list_obj.online_id; //wunderlist.getOnlineIdByListId(list_id);
 
 	$.ajax({
 		url: sharing.sharedEmailsUrl,
@@ -1014,7 +1028,6 @@ wunderlist.getSharedEmails = function(list_id)
 							wunderlist.lists[list_id].emails = result;
 							
 							break;
-
 						case sharing.status_codes.SHARE_FAILURE:
 							break;
 						case sharing.status_codes.SHARE_DENIED:

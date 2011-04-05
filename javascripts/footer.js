@@ -58,7 +58,10 @@ footer.callout_contents_for_object = function(object) {
 	
 	var callout_contents = '<input class="add_group_member_input" id="member_input_'+group+'"><div class="add_member_button" onclick="footer.add_user_to_group(\''+group+'\');">+</div><br />';
 	
-	var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
+	// var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
+	
+	var users = wunderlist.getSharedEmails(group);
+	
 	for (var i=0; i < users.length; i++) {
 		callout_contents += '<div class="group_member">'+users[i]+'<div class="remove_member_button" onclick="footer.remove_user_from_group(\''+users[i]+'\',\''+group+'\');">–</div></div>';
 	};
