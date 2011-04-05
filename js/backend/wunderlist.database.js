@@ -989,7 +989,7 @@ wunderlist.getListByName = function(name) {
  * @original wunderlist.sharing.js Dennis Schneider
  * @author Fredrik Andersson
  */
-wunderlist.getSharedEmails = function(list_name)
+wunderlist.getSharedEmails = function(list_name,func_done)
 {
 	var list_obj = wunderlist.getListByName(list_name);
 	var list_id = wunderlist.id;
@@ -999,6 +999,7 @@ wunderlist.getSharedEmails = function(list_name)
 	data['email']    = user_credentials['email'];
 	data['password'] = user_credentials['password'];
 	data['list_id']  = list_obj.online_id; //wunderlist.getOnlineIdByListId(list_id);
+	//data['list_id']  = wunderlist.getOnlineIdByListId(list_id);
 
 	$.ajax({
 		url: sharing.sharedEmailsUrl,
@@ -1024,13 +1025,18 @@ wunderlist.getSharedEmails = function(list_name)
 									result.push($.trim(response.emails[value]));
 								}
 							}
-							
 							wunderlist.lists[list_id].emails = result;
-							
+							if (func_done != null) {
+								func_done(result);
+							}
 							break;
 						case sharing.status_codes.SHARE_FAILURE:
 							break;
 						case sharing.status_codes.SHARE_DENIED:
+							var result = [];
+							if (func_done != null) {
+								func_done(result);
+							}
 							break;
 						case sharing.status_codes.SHARE_NOT_EXIST:
 							break;

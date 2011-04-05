@@ -8,7 +8,8 @@ footer.lists_updated = function() {
 
 	for(var keyword in data) {
 		var cloud_data = {
-			tag:data[keyword].name
+			tag:data[keyword].name,
+			id:data[keyword].id
 		};
 		
 		var cloud = ich.footer_cloud_template(cloud_data);
@@ -35,18 +36,20 @@ footer.clean = function (string) {
 }
 
 footer.showcallout = function (object) {
-	$('.callout_main').not('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:0.0}, 300, function(){
-		$('.callout_main').not('#callout_'+footer.clean($(object).attr('id'))).css('display','none');
+	var id = footer.clean($(object).attr('id'));
+	var callout_div_id = '#callout_'+id;
+	$('.callout_main').not(callout_div_id).animate({opacity:0.0}, 300, function(){
+		$('.callout_main').not(callout_div_id).css('display','none');
 	});
 	
-	if ($('#callout_'+footer.clean($(object).attr('id'))).css('opacity') == 0.0) {
-		var top = $('#todo_list').position().top + $('#todo_list').height() - $('#callout_'+footer.clean($(object).attr('id'))).height() + 30;
-		$('#callout_'+footer.clean($(object).attr('id'))).css('top',top);
-		$('#callout_'+footer.clean($(object).attr('id'))).css('display','block');
-		$('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:1.0}, 300, function(){});
+	if ($(callout_div_id).css('opacity') == 0.0) {
+		var top = $('#todo_list').position().top + $('#todo_list').height() - $(callout_div_id).height() + 30;
+		$(callout_div_id).css('top',top);
+		$(callout_div_id).css('display','block');
+		$(callout_div_id).animate({opacity:1.0}, 300, function(){});
 	} else {
-		$('#callout_'+footer.clean($(object).attr('id'))).animate({opacity:0.0}, 300, function(){
-			$('#callout_'+footer.clean($(object).attr('id'))).css('display','none');
+		$(callout_div_id).animate({opacity:0.0}, 300, function(){
+			$(callout_div_id).css('display','none');
 		});
 	}
 }
@@ -60,17 +63,20 @@ footer.remove_user_from_group = function (user,group) {
 }
 
 footer.callout_contents_for_object = function(object) {
-	var group = $(object).attr('id').replace('cloud_','').replace('#','');
+	var group = footer.clean($(object).attr('id'));
 	
 	var callout_contents = '<input class="add_group_member_input" id="member_input_'+group+'"><div class="add_member_button" onclick="footer.add_user_to_group(\''+group+'\');">+</div><br />';
 	
-	// var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
+	callout_contents += '<div id="callout_emails_'+$(object).text()+'"></div>';
 	
-	var users = wunderlist.getSharedEmails(group);
+	var users = ['robin@kondensator.se','frdrik@kondensator.se','victor@kondensator.se','andreas@kondensator.se','oscar@kondensator.se'];
 	
-	for (var i=0; i < users.length; i++) {
-		callout_contents += '<div class="group_member">'+users[i]+'<div class="remove_member_button" onclick="footer.remove_user_from_group(\''+users[i]+'\',\''+group+'\');">–</div></div>';
-	};
+	wunderlist.getSharedEmails($(object).text(),function(emails){
+		alert($(object).text() + ': ' + emails.length);
+		for (var i=0; i < emails.length; i++) {
+			$('#callout_emails_'+$(object).text()).append('<div class="group_member">'+emails[i]+'<div class="remove_member_button" onclick="footer.remove_user_from_group(\''+emails[i]+'\',\''+group+'\');">–</div></div>');
+		}
+	});
 	
 	return callout_contents;
 }
