@@ -89,12 +89,15 @@ todo_list.add_item = function(id, opacity, day, month, message) {
 
 todo_list.add_todo = function() {
 	if ($('#input').val() != '') {
-		
-		var id = $('.todo').length;		
-		
+				
 		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
+		var day = $('#day').html(), 
+			month = $('#month').html(), 
+			text = $('#input').html();
+
+		var id = wunderlist.createTask(name, list_id, timestamp);
 		
-		todo_list.add_item(id, opacity, $('#day').html(), $('#month').html(), $('#input').html())
+		todo_list.add_item(id, opacity, day, month, text);
 
 		todo_list.activate_filter();
 		todo_list.setup_sortable();
