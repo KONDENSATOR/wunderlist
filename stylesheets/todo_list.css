@@ -1,15 +1,15 @@
 .todo {
-	-webkit-box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+/*	-webkit-box-shadow: 0 2px 3px rgba(0,0,0,0.5);*/
 	border: 1px solid silver;
 	padding: 5px;
-	height: 65px;
+	height: 32px;
 	margin-top: -5px;
+	background-color: white;
 }
 
 .sortable li {
 	margin:0px;
 	padding:0px;
-/*	height: 85px;*/
 }
 
 .todo .timer {
@@ -52,44 +52,53 @@
 }
 
 .todo .date_holder {
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+/*	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5);*/
 	float: left;
 	border: 1px solid black;
-	width: 65px;
-	height:65px;
+	width: 30px;
+	height:30px;
 }
 
 .todo .date_holder .day {
-	height: 50px;
+	height: 20px;
 	text-align: center;
-	font-size: 32px;
-	line-height:50px;
+	font-size: 20px;
+	line-height:20px;
 	background-color: white;
 }
 
 .todo .date_holder .month {
-	height: 15px;
+	height: 10px;
 	color: white;
-	font-size: 11px;
-	line-height:15px;
+	font-size: 8px;
+	line-height:10px;
 	font-weight: bold;
 	text-align: center;
 	background-color: #A00;
 }
 
+.todo .no_date {
+	border-color: silver;
+}
+
+.todo .no_date .month {
+	background-color: #DDD;
+}
+
 .todo .description_holder {
 	float:left;
-	height:65px;
+	height:30px;
 	margin-left: 5px;
 	position: absolute;
-	left: 85px;
-	right: 50px;
-	line-height:65px;
+	left: 55px;
+	right: 20px;
+	line-height:30px;
 	cursor: pointer;
+	overflow: hidden;
 }
 
 .todo .description_holder h1 {
-	font-size: 19px;
+	font-size: 14px;
 }
 
 #todo_list .meta_data {
@@ -97,8 +106,8 @@
 	padding: 5px;
 	height:100px;
 	border:1px solid silver;
-	background-color:rgba(255,255,255,0.5);
-	margin: 10px;
+	background-color:rgba(255,255,255,0.75);
+	margin-top: 10px;
 	margin-left: 10px;
 	margin-right: 10px;
 	margin-bottom: 0px;
