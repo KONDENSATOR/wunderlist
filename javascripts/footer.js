@@ -89,7 +89,7 @@ footer.init = function(){
 	
 	$('#show_more').click(function_expand);
 	
-	$(".cloud_test").each(function(index,object){
+	$(".cloud").each(function(index,object){
 		$(object).callout({
 		    msg:footer.callout_contents_for_object(object),
 			todo_id:$(object).attr('id').replace('#','')
