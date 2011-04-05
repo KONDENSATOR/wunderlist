@@ -18,6 +18,28 @@ header.toggle_date = function() {
 	}
 }
 
+header.set_today = function() {
+	var api = $(":date").data("dateinput");
+	api.today();
+	$('#input').blur();
+	$('#input').focus();
+}
+
+header.remove_date = function() {
+	var api = $(":date").data("dateinput");
+	api.setValue(null);
+	api.hide();
+	$('#date').val('');
+	$('#day').html('');
+	$('#month').html('');
+	$('#input').blur();
+	$('#input').focus();
+}
+
+header.focus_input = function() {
+	$('#input').focus();
+}
+
 header.add_todo = function() {
 	if ($('#input').val() != '') {
 		
@@ -61,8 +83,9 @@ header.keywords_updated = function() {
 }
 
 header.init = function() {
-	wunderlist.bindto_keywords_updated(header.keywords_updated);
+	//wunderlist.bindto_keywords_updated(header.keywords_updated);
 	
+	header.should_toggle_date = true;
 	$("header :date").dateinput({
 		value: new Date(),
 		firstDay: 1,
@@ -72,7 +95,9 @@ header.init = function() {
 			$('#day').html(this.getValue('dd'));
 			$('#month').html(month_dic[this.getValue('mm')]);
 			$('#date_holder').css('opacity',1.0);
-			header.toggle_date();
+			if (header.should_toggle_date) {
+				header.toggle_date();
+			}
 		}
 	});
 	
@@ -85,6 +110,7 @@ header.init = function() {
 		$('#add_button').bind('click',header.add_todo);
 	}
 	
+	// Setup command key listener
 	var isCommand = false;$(document).keyup(function (e) {
 		if(e.which == 91 || e.which == 93) isCommand=false;
 	}).keydown(function (e) {
@@ -92,10 +118,33 @@ header.init = function() {
 	    if(e.which == 93 && isCommand == true) {return false;}
 	});
 	
+	// Setup shift key listener
+	var isShift = false;$(document).keyup(function (e) {
+		if(e.which == 16 || e.which == 16) isShift=false;
+	}).keydown(function (e) {
+	    if(e.which == 16) isShift=true;
+	    if(e.which == 16 && isShift == true) {return false;}
+	});
+	
 	$('#input').keydown(function(event) {
-		var pressedReturn = (event.keyCode == '13');
-		if (isCommand && pressedReturn) { // Command + return
-			header.add_todo();
+		if (isCommand) {
+			var pressed_return = (event.keyCode == '13');
+			var pressed_d = (event.keyCode == '68');
+			var pressed_l = (event.keyCode == '76');
+			var pressed_plus = (event.keyCode == '189' || event.keyCode == '107');
+			var pressed_minus = (event.keyCode == '191' || event.keyCode == '109');
+			
+			if (pressed_return) { // Command + return
+				header.add_todo();
+			} else if (!isShift && pressed_d) { // Command + D
+				header.set_today();
+			} else if (isShift && pressed_d) { // Command + Shift + D
+				header.should_toggle_date = false;
+				setTimeout("header.should_toggle_date = true;",100);
+				header.remove_date();
+			}
+			
+			
 		}
 	});
 	
