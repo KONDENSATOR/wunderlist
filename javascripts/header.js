@@ -77,7 +77,7 @@ header.hide_help = function () {
 	$('#helper_button').animate({opacity:1.0,marginTop:-10},100,function(){});
 	$('#helper').animate({top:-90},300,function(){});
 	$('#header').animate({top:0},300,function(){});
-	$('#todo_list').animate({top:85},300,function(){});
+	$('#todo_list').animate({top:66},300,function(){});
 }
 
 header.show_help = function () {
@@ -86,7 +86,7 @@ header.show_help = function () {
 	});
 	$('#helper').animate({top:0},300,function(){});
 	$('#header').animate({top:90},300,function(){});
-	$('#todo_list').animate({top:175},300,function(){});
+	$('#todo_list').animate({top:156},300,function(){});
 }
 
 header.keywords_updated = function() {
@@ -132,8 +132,15 @@ header.init = function() {
 	}).keydown(function (e) {
 	    if(e.which == 91) isCommand=true;
 	    if(e.which == 93 && isCommand == true) {return false;}
-		if (isCommand && e.which == 76) {
+		if (isCommand && e.which == 76) { // Command + L
 			header.focus_input();
+		}
+		if (isCommand && e.which == 74) { // Command + J
+			if ($('#helper_button').css('display') == 'none') {
+				header.hide_help();
+			} else {
+				header.show_help();
+			}
 		}
 	});
 	
