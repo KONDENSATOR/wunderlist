@@ -72,6 +72,22 @@ header.add_todo = function() {
 	}
 }
 
+header.hide_help = function () {
+	$('#helper_button').css('display','block');
+	$('#helper_button').animate({opacity:1.0,marginTop:-10},100,function(){});
+	$('#helper').animate({top:-90},300,function(){});
+	$('#header').animate({top:0},300,function(){});
+	$('#todo_list').animate({top:85},300,function(){});
+}
+
+header.show_help = function () {
+	$('#helper_button').animate({opacity:0.0,marginTop:-50},100,function(){
+		$('#helper_button').css('display','none');
+	});
+	$('#helper').animate({top:0},300,function(){});
+	$('#header').animate({top:90},300,function(){});
+	$('#todo_list').animate({top:175},300,function(){});
+}
 
 header.keywords_updated = function() {
 	var data = wunderlist.keywords();
@@ -116,6 +132,9 @@ header.init = function() {
 	}).keydown(function (e) {
 	    if(e.which == 91) isCommand=true;
 	    if(e.which == 93 && isCommand == true) {return false;}
+		if (isCommand && e.which == 76) {
+			header.focus_input();
+		}
 	});
 	
 	// Setup shift key listener

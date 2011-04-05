@@ -1,3 +1,23 @@
+#helper_button {
+	width: 100px;
+	height: 25px;
+	margin-top: -10px;
+	margin-left: auto;
+	margin-right: auto;
+	
+	color: white;
+	font-size: 12px;
+	line-height: 35px;
+	text-align: center;
+	
+	cursor: pointer;
+	
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#83c77a), to(#0e6700));
+	
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-border-radius: 10px;
+}
+
 #input_holder {
 	-webkit-border-radius: 15px;
 	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
@@ -5,7 +25,7 @@
 	background-color: rgba(255,255,255,0.4);
 	height: 40px;
 	position: absolute;
-	top: 10px;
+	top: 20px;
 	left: 10px;
 	right: 10px;
 }
