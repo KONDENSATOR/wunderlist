@@ -67,9 +67,9 @@ todo_list.add_item = function(id, opacity, day, month, message) {
 	var todo_data = {
 		id: id,
 		opacity:opacity,
-		day: $('#day').html(),
-		month: $('#month').html(),
-		message: $('#input').val()
+		day:day,
+		month:month,
+		message:message
 	};
 	
 	var todo = ich.todo_header_template(todo_data);

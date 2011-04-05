@@ -190,13 +190,13 @@ wunderlist.bindto_keywords_updated = function(func) {
 }
 
 wunderlist.poke_bindto_todo_items_subscribers = function() {
-	for(var i in this.bound_todo_items_update) {
-		bound_todo_items_update[i]();
+	for(var i in this.bound_todo_items_updated) {
+		this.bound_todo_items_updated[i]();
 	}
 }
 
 wunderlist.bindto_todo_items_updated = function(func) {
-	this.bound_todo_items_update.push(func);
+	this.bound_todo_items_updated.push(func);
 	
 	if(this.todo_items != null){
 		func();
@@ -530,7 +530,9 @@ wunderlist.getTasksByResultSet = function(resultTaskSet){
 }
 
 wunderlist.updateTodoListItems = function(items) {
+	this.todo_items = items;
 	
+	this.poke_bindto_todo_items_subscribers();
 }
 
 /**
@@ -553,7 +555,7 @@ wunderlist.getTasksByListId = function(list_id)
  */
 wunderlist.getTasksByUser = function(user_name)
 {
-	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE name LIKE '%?%' AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", user_name);
+	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE name LIKE '%" +user_name+ "%' AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC");
 
 	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
 }
@@ -603,7 +605,7 @@ wunderlist.liveSearch = function(search)
 
 	var resultSet = this.query("SELECT * FROM tasks WHERE (name LIKE '%" + search + "%' OR note LIKE '%" + search + "%') AND tasks.deleted = 0 ORDER BY done ASC, important DESC, date DESC");
 	
-	return this.getTasksByResultSet(resultSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultSet));
 }
 
 /**
@@ -1252,7 +1254,7 @@ wunderlist.getListById = function(list_id)
 
 	var resultTaskSet = wunderlist.database.execute(sql);
 
-	return this.getTasksByResultSet(resultTaskSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
 }
 
 /**
@@ -1359,7 +1361,7 @@ wunderlist.getFilteredTasks = function(type, date_type) {
 
 	var resultSet = this.database.execute(sql);
 
-	this.getTasksByResultSet(resultSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultSet));
 }
 
 /**
@@ -1519,7 +1521,7 @@ wunderlist.getLastDoneTasks = function(list_id)
 
 	var resultSet = this.database.execute(sql);
 
-	return wunderlist.getTasksByResultSet(resultSet);
+	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultSet));
 }
 
 wunderlist.isArray = function(value)
