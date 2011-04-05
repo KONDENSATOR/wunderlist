@@ -28,3 +28,84 @@ footer .cloud{
 	margin-top: 10px;
 	cursor: pointer;
 }
+
+footer .cloud_test{
+	color: white;
+	font-size: 12px;
+	float:left;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 7px;
+	padding-right: 7px;
+	border: 1px solid #777;
+	background-color: rgba(150,150,150,0.6);
+	-webkit-border-radius: 10px;
+	margin-left: 10px;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.callout_main {
+	display: none;
+	opacity: 0.0;
+}
+
+.callout {
+	margin-bottom: 2px;
+	color: white;
+	background-color: rgba(0,0,0,0.85);
+    padding: 5px;
+    border: 1px solid gray;
+    -webkit-border-radius: 8px;
+}
+
+.add_group_member_input {
+	color: white;
+	background-color: rgba(0,0,0,0.5);
+	border: 1px solid #333;
+	outline: 0;
+	width: 135px;
+	height: 16px;
+	margin-bottom: 5px;
+}
+
+.add_member_button {
+	text-align: center;
+	font-size: 16px;
+	line-height: 16px;
+	padding-left: 1px;
+	float: right;
+	width: 18px;
+	height: 18px;
+	border: 1px solid #333;
+	cursor: pointer;
+	background-color: rgba(0,0,0,0.5);
+}
+
+#add_member_button:hover {
+	background-color: #222;
+}
+
+.group_member {
+	cursor: default;
+	font-size: 12px;
+}
+
+.group_member:hover {
+	background-color: #333;
+}
+
+.remove_member_button {
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(pink), to(red));
+	line-height: 10px;
+	font-size: 10px;
+	text-align: center;
+	cursor: pointer;
+	margin-top: 1px;
+	margin-left: 5px;
+	border: 1px solid red;
+	height: 10px;
+	width: 10px;
+	float:right;
+	-webkit-border-radius: 10px;
+}

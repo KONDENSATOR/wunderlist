@@ -63,10 +63,10 @@ todo_list.setup_sortable = function() {
 		});
 }
 
-todo_list.add_item = function(id, opacity, day, month, message) {
+todo_list.add_item = function(id, no_date, day, month, message) {
 	var todo_data = {
 		id: id,
-		opacity: opacity,
+		no_date: no_date,
 		day: day == '0' ? '' : day,
 		month: month == '0' ? '' : month,
 		message: message
@@ -89,15 +89,11 @@ todo_list.add_item = function(id, opacity, day, month, message) {
 
 todo_list.add_todo = function() {
 	if ($('#input').val() != '') {
-				
-		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
-		var day = $('#day').html(), 
-			month = $('#month').html(), 
-			text = $('#input').html();
-
-		var id = wunderlist.createTask(name, list_id, timestamp);
 		
-		todo_list.add_item(id, opacity, day, month, text);
+		var no_date = $('#day').html() == '' ? 'no_date' : '';
+		var id = wunderlist.createTask(name, list_id, timestamp);
+
+		todo_list.add_item(id, no_date, $('#day').html(), $('#month').html(), $('#input').html())
 
 		todo_list.activate_filter();
 		todo_list.setup_sortable();
@@ -119,8 +115,9 @@ todo_list.todo_items_updated = function() {
 		var date = new Date(date_int);
 		var date_day = date_int == 0 ? '' : todo_list.day_from_timestamp(date);
 		var date_month = date_int == 0 ? '' : todo_list.month_from_timestamp(date);
+		var no_date = date_int == 0 ? 'no_date' : '';
 		
-		todo_list.add_item(itm.id, itm.date == 0 ? 0.25 : 1.0, date_day, date_month, itm.name);
+		todo_list.add_item(itm.id, no_date, date_day, date_month, itm.name);
 	}
 	
 	todo_list.activate_filter();

@@ -22,6 +22,7 @@
 		<script src="javascripts/jquery/jquery.autocomplete.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery.tools.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="javascripts/jquery/jquery.keyboard.js" type="text/javascript" charset="utf-8"></script>
+		<script src="javascripts/jquery/jquery.callout.js" type="text/javascript" charset="utf-8"></script>
 		
 		<!-- Loading helpers -->
 		<script type="text/javascript" src="js/helpers/dialogs.js"></script>
@@ -48,13 +49,8 @@
 		<!-- Templates -->
 		<script id="todo_header_template" type="text/html">
 			<li>
-				<article class="todo rounded gray_gradient" id="todo_{{ id }}">
-					<div class="timer">
-						<div class="lamp start"></div>
-						<div class="lamp paus"></div>
-						<div class="lamp stop"></div>
-					</div>
-					<div class="date_holder" style="opacity:{{ opacity }}">
+				<article class="todo" id="todo_{{ id }}">
+					<div class="date_holder {{ no_date }}">
 						<div class="day">{{ day }}</div>
 						<div class="month">{{ month }}</div>
 					</div>
@@ -62,7 +58,11 @@
 						<h1>{{ message }}</h1>
 					</div>
 				</article>
-				<div id="meta_todo_{{ id }}" class="meta_data shadow rounded"></div>
+				<div id="meta_todo_{{ id }}" class="meta_data shadow rounded">
+					<div class="description_full">
+						<h3>{{ message }}</h3>
+					</div>
+				</div>
 			</li>
 		</script>
 		<script id="footer_cloud_template" type="text/html">
