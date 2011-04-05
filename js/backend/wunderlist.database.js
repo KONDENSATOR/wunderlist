@@ -439,19 +439,6 @@ wunderlist.update_120_kondensator = function() {
 	catch(err) {}
 }
 
-
-/**
- * Recreate tutorial tasks
- *
- * @author Christian Reber
- */
-wunderlist.recreateTutorials = function()
-{
-	var tutorials_list_id = wunderlist.createDatabaseStandardElements(true);
-	save_last_opened_list(tutorials_list_id);
-	account.loadInterface();
-}
-
 /**
  * Truncates the whole database
  *
@@ -469,27 +456,31 @@ wunderlist.truncateDatabase = function() {
  *
  * @author Dennis Schneider
  * @author Daniel Marschner
+ * @modified Fredrik Andersson
  */
 wunderlist.initLists = function() {
 	var listsResultSet = this.database.execute("SELECT lists.id, lists.name, lists.inbox, (SELECT COUNT(tasks.id) FROM tasks WHERE tasks.list_id = lists.id AND deleted = 0 AND done = 0) as taskCount, shared FROM lists WHERE lists.deleted = 0 ORDER BY lists.inbox DESC, lists.position ASC");
 
-	var result = {};
+	wunderlist.updateLists(wunderlist.getListsByResultSet(listsResultSet));
 
-	while(listsResultSet.isValidRow()) {
-		var list = {
-			'id':			listsResultSet.field(0),
-			'name':			unescape(listsResultSet.field(1)),
-			'inbox':		listsResultSet.field(2),
-			'taskCount':	listsResultSet.field(3),
-			'shared':       listsResultSet.field(4)
-		};
-		
-		result[list.id] = list;
+	// var result = {};
 
-		listsResultSet.next();
-    }
+	// while(listsResultSet.isValidRow()) {
+	// 	var list = {
+	// 		'id':			listsResultSet.field(0),
+	// 		'name':			unescape(listsResultSet.field(1)),
+	// 		'inbox':		listsResultSet.field(2),
+	// 		'taskCount':	listsResultSet.field(3),
+	// 		'shared':       listsResultSet.field(4)
+	// 	};
+	// 	
+	// 	result[list.id] = list;
+	// 
+	// 	listsResultSet.next();
+	//     }
 
-	lists = result;
+
+	// lists = result;
 }
 
 wunderlist.getTasksByResultSet = function(resultTaskSet){
@@ -515,10 +506,40 @@ wunderlist.getTasksByResultSet = function(resultTaskSet){
 	return tasks;
 }
 
+wunderlist.getListsByResultSet = function(resultSet){
+
+	var lists = {};
+	var k     = 0;
+	while(resultSet.isValidRow())
+	{
+		lists[k] = {};
+		for(var i = 0; i < resultSet.fieldCount(); i++) {
+			var field_name = resultSet.fieldName(i);
+			
+			if(field_name == meta){
+				lists[k][field_name] = Titanium.JSON.parse(resultSet.field(i));
+			} else {
+				lists[k][field_name] = resultSet.field(i);
+			}
+		}
+		resultSet.next();
+		k++;
+	}
+
+	return lists;
+}
+
+
 wunderlist.updateTodoListItems = function(items) {
 	this.todo_items = items;
 	
 	this.poke_todo_items_updated_subscribers();
+}
+
+wunderlist.updateLists = function(items) {
+	this.lists = items;
+	
+	this.poke_lists_updated_subscribers();
 }
 
 /**
@@ -949,6 +970,69 @@ wunderlist.setListToShared = function(list_id)
 {
 	var resultSet = this.database.execute("UPDATE lists SET shared = 1, version = version + 1 WHERE id = ?", list_id);
 	return true;
+}
+
+/**
+ * Get the emails for the shared list from the server
+ *
+ * @original wunderlist.sharing.js Dennis Schneider
+ * @author Fredrik Andersson
+ */
+wunderlist.getSharedEmails = function(list_id)
+{
+	var data         = {};
+	user_credentials = wunderlist.getUserCredentials();
+	data['email']    = user_credentials['email'];
+	data['password'] = user_credentials['password'];
+	data['list_id']  = wunderlist.getOnlineIdByListId(list_id);
+
+	$.ajax({
+		url: sharing.sharedEmailsUrl,
+		type: 'POST',
+		data: data,
+		timeout: config.REQUEST_TIMEOUT,
+		beforeSend: function(){
+		},
+		success: function(response_data, text, xhrobject) {
+			if (response_data != '' && text != '' && xhrobject != undefined) {
+				if (xhrobject.status == 200) {
+					console.log(response_data);
+
+					var response = eval('(' + response_data + ')');
+
+					switch (response.code) {
+						case sharing.status_codes.SHARE_SUCCESS:
+							
+							var result = [];
+							
+							if (response.emails != undefined && response.emails.length > 0) {
+								for (value in response.emails) {
+									result.push($.trim(response.emails[value]));
+								}
+							}
+							
+							wunderlist.lists[list_id].emails = result;
+							
+							break;
+
+						case sharing.status_codes.SHARE_FAILURE:
+							break;
+						case sharing.status_codes.SHARE_DENIED:
+							break;
+						case sharing.status_codes.SHARE_NOT_EXIST:
+							break;
+						case sharing.status_codes.SHARE_NOT_SHARED:
+							break;
+						default:
+							break;
+					}
+				}
+			}
+		},
+		error: function(xhrobject) {
+			dialogs.showErrorDialog(language.data.sync_error);
+		}
+	});
 }
 
 /**

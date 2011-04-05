@@ -1,20 +1,18 @@
 var footer = {};
 
 
-footer.keywords_updated = function() {
-	var data = wunderlist.keywords();
+footer.lists_updated = function() {
+	var data = wunderlist.lists;
 	
 	$('.cloud').remove();
 
 	for(var keyword in data) {
 		var cloud_data = {
-			tag:data[keyword]
+			tag:data[keyword].name
 		};
 		
 		var cloud = ich.footer_cloud_template(cloud_data);
-		
-		p(cloud_data);
-		
+				
 		$('#footer').append(cloud);	
 	}
 }
@@ -56,7 +54,8 @@ footer.callout_contents_for_object = function(object) {
 }
 
 footer.init = function(){
-	wunderlist.bindto_keywords_updated(footer.keywords_updated);
+	
+	wunderlist.bindto_lists_updated(footer.lists_updated);
 	
 	var function_expand = function(){
 		$('#footer').animate({
