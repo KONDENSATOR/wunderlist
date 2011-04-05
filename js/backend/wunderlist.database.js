@@ -489,24 +489,21 @@ wunderlist.initLists = function()
     }
 }
 
-/**
- * Gets the tasks of the specified list
- * 
- * @author Dennis Schneider
- */
-wunderlist.getTasksByListId = function(list_id)
-{
-	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE list_id = ? AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", list_id);
+wunderlist.getTasksByResultSet = function(resultTaskSet){
 
 	var tasks = {};
 	var k     = 0;
 	while(resultTaskSet.isValidRow())
 	{
 		tasks[k] = {};
-		for(var i = 0; i < resultTaskSet.fieldCount(); i++)
-		{
+		for(var i = 0; i < resultTaskSet.fieldCount(); i++) {
+			var field_name = resultTaskSet.fieldName(i);
 			
-			tasks[k][resultTaskSet.fieldName(i)] = resultTaskSet.field(i);
+			if(field_name == meta){
+				tasks[k][field_name] = Titanium.JSON.parse(resultTaskSet.field(i));
+			} else {
+				tasks[k][field_name] = resultTaskSet.field(i);
+			}
 		}
 		resultTaskSet.next();
 		k++;
@@ -514,6 +511,32 @@ wunderlist.getTasksByListId = function(list_id)
 
 	return tasks;
 }
+
+/**
+ * Gets the tasks of the specified list
+ * 
+ * @author Dennis Schneider
+ * @modified Fredrik Andersson
+ */
+wunderlist.getTasksByListId = function(list_id)
+{
+	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE list_id = ? AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", list_id);
+
+	return this.getTasksByResultSet(resultTaskSet);
+}
+
+/**
+ * Gets the tasks of the specified user
+ * 
+ * @author Fredrik Andersson
+ */
+wunderlist.getTasksByUser = function(user_name)
+{
+	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE name LIKE '%?%' AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", user_name);
+
+	return this.getTasksByResultSet(resultTaskSet);
+}
+
 
 /**
  * Checks for existing list
@@ -526,31 +549,6 @@ wunderlist.listExistsById = function(list_id)
 	return (countSet.rowCount() > 0) ? true : false;
 }
 
-/**
- * Generate the task list
- *
- * @author Dennis Schneider
- */
-wunderlist.fetchData = function(resultTaskSet)
-{
-	var html_code = '';
-
-	while(resultTaskSet.isValidRow())
-	{
-		var task = {};
-
-		for(var i = 0; i < resultTaskSet.fieldCount(); i++)
-		{
-			task[resultTaskSet.fieldName(i)] = resultTaskSet.field(i);
-		}
-
-		html_code += html.generateTaskHTML(task['task_id'], task['task_name'], task['list_id'], task['done'], task['important'], task['date'], task['note']);
-
-		resultTaskSet.next();
-	}
-
-	return html_code;
-}
 
 /**
  * Calculates the difference between the current and the given date
@@ -583,27 +581,8 @@ wunderlist.liveSearch = function(search)
     $("#content").html("");
 
 	var resultSet = this.query("SELECT * FROM tasks WHERE (name LIKE '%" + search + "%' OR note LIKE '%" + search + "%') AND tasks.deleted = 0 ORDER BY done ASC, important DESC, date DESC");
-
-	if (resultSet.rowCount() > 0)
-	{
-		$("#content").prepend("<div id='listfunctions'><a rel='share this list' class='list-share'></a><a rel='print tasks' class='list-print'></a><a rel='send by email' class='list-email'></a><a rel='share with cloud app' class='list-cloud'></a><div id='cloudtip'><span class='triangle'></span><span class='copy'>COPY LINK</span><span class='link'></span></div></div>");
-		$("#content").append("<h1>"+ language.data.search_results + "</h1><ul id='list' class='mainlist search'></ul>");
-
-        while(resultSet.isValidRow()) {
-            var values = new Object();
-
-            for(var i = 0, max = resultSet.fieldCount(); i < max; i++)
-                values[resultSet.fieldName(i)] = resultSet.field(i);
-
-            var task = generateTaskHTML(values['id'], values['name'], values['list_id'], values['done'], values['important'], values['date'], values['note']);
-
-            $("#content ul.mainlist").append(task);
-
-            resultSet.next();
-        }
-    }
-	else
-        $("#content").append("<h1>"+ language.data.no_search_results + "</h1>");
+	
+	return this.getTasksByResultSet(resultSet);
 }
 
 /**
@@ -1233,6 +1212,7 @@ wunderlist.getBadgeCount = function(filter_name)
  *
  * @author Dennis Schneider
  * @author Daniel Marschner
+ * @modified Fredrik Andersson
  */
 wunderlist.getListById = function(list_id)
 {
@@ -1244,15 +1224,14 @@ wunderlist.getListById = function(list_id)
 	};
 
 	// Select the list tasks
-	var sql  = "SELECT tasks.id AS task_id, tasks.online_id AS online_id, tasks.name AS task_name, tasks.done, tasks.important, tasks.date, tasks.position, tasks.list_id, tasks.note ";
+	var sql  = "SELECT * ";
 	    sql += "FROM tasks ";
 	    sql += "WHERE tasks.list_id = '" + list['id'] + "' AND tasks.done = 0 AND tasks.deleted = 0 ";
 	    sql += "ORDER BY tasks.important DESC, tasks.position ASC";
 
 	var resultTaskSet = wunderlist.database.execute(sql);
 
-	$('#content').append(html.generateListContentHTML(list['id'], list['name']));
-	$("#list").append(wunderlist.fetchData(resultTaskSet));
+	return this.getTasksByResultSet(resultTaskSet);
 }
 
 /**
@@ -1303,15 +1282,11 @@ wunderlist.getListNameById = function(list_id)
  * Filters tasks by a given type
  *
  * @author Dennis Schneider
+ * @modified Fredrik Andersson
  */
-wunderlist.getFilteredTasks = function(type, date_type, printing)
-{
-	if (printing == undefined)
-	{
-		printing = false;
-	}
+wunderlist.getFilteredTasks = function(type, date_type) {
 
-	var sql  = "SELECT tasks.id AS task_id, tasks.online_id AS online_id, tasks.name AS task_name, tasks.note, tasks.done, tasks.important, tasks.position, tasks.date, tasks.list_id ";
+	var sql  = "SELECT * ";
 		sql += "FROM tasks ";
 
 	current_date = html.getWorldWideDate();
@@ -1319,61 +1294,41 @@ wunderlist.getFilteredTasks = function(type, date_type, printing)
 	switch(type)
 	{
 		case 'starred':
-			var listClass = "mainlist";
-			var title = language.data.all_starred_tasks;
 			sql 	 += "WHERE tasks.important = 1 AND tasks.done = 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'today':
-			var listClass = "mainlist";
-			var title = language.data.all_today_tasks;
 			sql 	 += "WHERE tasks.date = " + current_date + " AND tasks.date != 0 AND tasks.done = 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'tomorrow':
-			var listClass = "mainlist";
-			var title = language.data.all_tomorrow_tasks;
 			sql 	 += "WHERE tasks.date = " + (current_date + 86400) + " AND tasks.done = 0 AND tasks.deleted = 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'thisweek':
-			var listClass = "mainlist";
-			var title = language.data.all_thisweeks_tasks;
 			sql 	 += "WHERE tasks.date BETWEEN " + current_date + " AND " + (current_date + (86400 * 7)) + " AND tasks.done = 0 AND tasks.date != 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'done':
-			var title = language.data.all_done_tasks;
-			var listClass = "donelist";
 			sql 	 += "WHERE tasks.done = 1 AND tasks.deleted = 0 ";
 			break;
 
 		case 'all':
-			var listClass = "mainlist";
-			var title = language.data.all_tasks;
 			sql 	 += "WHERE tasks.done = 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'overdue':
-			var listClass = "mainlist";
-			var title = language.data.overdue_tasks;
 			sql 	 += "WHERE tasks.done = 0 AND tasks.date < " + current_date + " AND tasks.date != 0 AND tasks.deleted = 0 ";
 			break;
 
 		case 'date':
-			var listClass = "mainlist";
 			var temp_date_type = date_type;
-			if (date_type == 'nodate')
-			{
+			if (date_type == 'nodate') {
 				date      = 0;
 				date_type = '=';
-				title     = language.data.all_someday_tasks;
-			}
-			else
-			{
+			} else {
 				date = (current_date + 86400);
 				date_type = '>';
-				title     = language.data.all_later_tasks;
 			}
 			sql += "WHERE tasks.date " + date_type + " " + date + " AND tasks.done = 0 AND tasks.deleted = 0 ";
 			break;
@@ -1381,28 +1336,9 @@ wunderlist.getFilteredTasks = function(type, date_type, printing)
 
 	sql += "ORDER BY tasks.important DESC, tasks.date DESC";
 
-	var content = $("#content");
-
-	if (printing == false)
-	{
-		content.html('').hide();
-		content.prepend("<div id='listfunctions'></a><a rel='print tasks' class='list-print'></a><a rel='send by email' class='list-email'></a><a rel='share with cloud app' class='list-cloud'></a><div id='cloudtip'><span class='triangle'></span><span class='copy'>COPY LINK</span><span class='link'></span></div></div>");
-		content.append('<h1>' + title + '</h1><ul id="list" type="' + ((temp_date_type != undefined) ? temp_date_type : type) + '" class="filterlist ' + listClass + '"></ul>');
-	}
-
 	var resultSet = this.database.execute(sql);
 
-	if (printing == true)
-	{
-		return resultSet;
-	}
-
-	$("#list").append(wunderlist.fetchData(resultSet));
-
-	if(resultSet.rowCount() < 1)
-		content.append("<h3>" + language.data.no_results + "</h3>");
-
-	content.fadeIn('fast');
+	this.getTasksByResultSet(resultSet);
 }
 
 /**
@@ -1500,6 +1436,7 @@ wunderlist.deleteUserCredentials = function()
  * Gets all data for the sync process
  *
  * @author Dennis Schneider
+ * @modified Fredrik Andersson
  */
 wunderlist.getDataForSync = function(type, fields, where, return_object)
 {
@@ -1550,84 +1487,18 @@ wunderlist.getDataForSync = function(type, fields, where, return_object)
  *
  * @todo Shorten the method, it's too long
  * @author Dennis Schneider
+ * @modified Fredrik Andersson
  */
 wunderlist.getLastDoneTasks = function(list_id)
 {
-	var sql  = "SELECT tasks.id AS task_id, tasks.name AS task_name, tasks.done, tasks.important, tasks.position, tasks.date, tasks.list_id, tasks.done_date ";
+	var sql  = "SELECT * ";
 	    sql += "FROM tasks ";
 	    sql += "WHERE tasks.done = 1 AND list_id = '" + list_id + "' AND tasks.deleted = 0 ";
 	    sql += "ORDER BY tasks.done_date DESC";
 
 	var resultSet = this.database.execute(sql);
 
-    if (resultSet.rowCount() > 0)
-    {
-	    var doneListsTasks = [];
-
-		while(resultSet.isValidRow())
-	    {
-	        var values = {};
-
-			for (var i = 0, max = resultSet.fieldCount(); i < max; i++)
-				values[resultSet.fieldName(i)] = resultSet.field(i);
-
-			var days   = this.calculateDayDifference(values['done_date']);
-			var htmlId = days.toString();
-
-			if (wunderlist.isArray(doneListsTasks[htmlId]) == false)
-				doneListsTasks[htmlId] = [];
-
-	        doneListsTasks[htmlId].push(html.generateTaskHTML(values['task_id'], values['task_name'], values['list_id'], values['done'], values['important'], values['date'], values['note']));
-
-	        resultSet.next();
-		}
-
-		for(listId in doneListsTasks)
-		{
-			var day_string = language.data.day_ago;
-			var heading    = '<h3>';
-
-			if (listId == 0) 
-			{
-				day_string = language.data.done_today;days_text = '';
-				heading = '<h3 class="head_today">';
-			}
-			else if (listId == 1)
-			{
-				day_string = language.data.done_yesterday;days_text = '';
-			}
-			else 
-			{
-				day_string = language.data.days_ago;days_text = listId;
-			}
-
-			// Check for older tasks and append new div
-			if (listId > 1 && ($('#older_tasks').length == 0))
-			{
-				$('#content').append('<button id="older_tasks_head">' + language.data.older_tasks + '</button><div id="older_tasks"></div>');
-			}
-
-			if ($('ul#donelist_' + listId).length == 0)
-			{
-				var appendHTML = heading + days_text + ' ' + day_string + '</h3><ul id="donelist_' + (listId == 0 ? 'list_today' : listId) + '" class="donelist">' + doneListsTasks[listId].join('') + '</ul>';
-
-				if ($('#older_tasks').length == 0)
-				{
-					$('#content').append(appendHTML);
-				}
-				else
-				{
-					$('#older_tasks').append(appendHTML);
-				}
-			}
-		}
-
-		// If there are older tasks, then append a hide button
-		if ($('#older_tasks ul').length > 0)
-		{
-			$('#content').append('<button id="hide_older_tasks">' + language.data.hide_older_tasks + '</button>');
-		}
-	}
+	return wunderlist.getTasksByResultSet(resultSet);
 }
 
 wunderlist.isArray = function(value)

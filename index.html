@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>Time Tracker</title>
+		<title>Awesomelist</title>
 		<link rel="icon" href="images/favicon.png">
 		<link rel="apple-touch-icon" href="images/favicon.png"> 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -39,13 +39,6 @@
 		<script type="text/javascript" src="js/backend/wunderlist.notifications.js"></script>
 		<script type="text/javascript" src="js/backend/wunderlist.timer.js"></script>
 		
-	
-		<script src="javascripts/general.js" type="text/javascript" charset="utf-8"></script>
-		<script src="javascripts/header.js" type="text/javascript" charset="utf-8"></script>
-		<script src="javascripts/footer.js" type="text/javascript" charset="utf-8"></script>
-		<script src="javascripts/todo_list.js" type="text/javascript" charset="utf-8"></script>
-		
-		<script src="javascripts/main.js" type="text/javascript" charset="utf-8"></script>
 		
 		<!-- Templates -->
 		<script id="todo_header_template" type="text/html">
@@ -71,6 +64,13 @@
 			<div id="cloud_{{ tag }}" class="cloud" onclick="todo_list.activate_filter('{{ tag }}');">{{ tag }}</div>
 		</script>
 		<script src="javascripts/ICanHaz.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="javascripts/general.js" type="text/javascript" charset="utf-8"></script>
+		<script src="javascripts/header.js" type="text/javascript" charset="utf-8"></script>
+		<script src="javascripts/footer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="javascripts/todo_list.js" type="text/javascript" charset="utf-8"></script>
+		
+		<script src="javascripts/main.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	
 	<body>
@@ -93,15 +93,10 @@
 			<ul class="sortable">
 				
 			</ul>
-
 		</section>
 		
 		<footer id="footer">
 			<div id="show_more">⬆</div>
-			<div id="cloud_#Finansliv" class="cloud" onclick="todo_list.activate_filter('#Finansliv');">#Finansliv</div>
-			<div id="cloud_#iPhoneguiden" class="cloud" onclick="todo_list.activate_filter('#iPhoneguiden');">#iPhoneguiden</div>
-			<div id="cloud_#Lindorff" class="cloud" onclick="todo_list.activate_filter('#Lindorff');">#Lindorff</div>
-			<div id="cloud_#BytBil" class="cloud" onclick="todo_list.activate_filter('#BytBil');">#BytBil</div>
 		</footer>
 	</body>
 

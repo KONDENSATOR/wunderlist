@@ -21,7 +21,7 @@ header.toggle_date = function() {
 header.add_todo = function() {
 	if ($('#input').val() != '') {
 		
-		var id = $('.todo').length;
+		var id = $('.todo').length;		
 		
 		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
 		var todo_data = {
@@ -52,7 +52,6 @@ header.add_todo = function() {
 
 
 header.keywords_updated = function() {
-	
 	var data = wunderlist.keywords();
 	
 	$('#input').autocomplete(data,{

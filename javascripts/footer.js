@@ -1,6 +1,29 @@
 var footer = {};
 
+
+footer.keywords_updated = function() {
+	var data = wunderlist.keywords();
+	
+	$('.cloud').remove();
+
+	for(var keyword in data) {
+		p("has keyword" + data[keyword]);
+		var cloud_data = {
+			tag:data[keyword]
+		};
+		
+		var cloud = ich.footer_cloud_template(cloud_data);
+		
+		p(cloud_data);
+		
+		$('#footer').append(cloud);	
+	}
+}
+
+
 footer.init = function(){
+	wunderlist.bindto_keywords_updated(footer.keywords_updated);
+	
 	var function_expand = function(){
 		$('#footer').animate({
 			height: 140
