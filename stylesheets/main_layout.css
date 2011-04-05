@@ -17,7 +17,7 @@ header {
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	height: 85px;
+	height: 66px;
 	border-bottom: 1px solid #BBB;
 	background-color:rgba(0,0,0,0.5);
 }
@@ -28,7 +28,7 @@ header {
 	bottom: 40px;
 	left: 0px;
 	right: 0px;
-	top: 85px;
+	top: 66px;
 	overflow: auto;
 }
 
