@@ -38,6 +38,8 @@ footer.showcallout = function (object) {
 	});
 	
 	if ($('#callout_'+$(object).attr('id').replace('#','')).css('opacity') == 0.0) {
+		var top = $('#todo_list').position().top + $('#todo_list').height() - $('#callout_'+$(object).attr('id').replace('#','')).height() + 30;
+		$('#callout_'+$(object).attr('id').replace('#','')).css('top',top);
 		$('#callout_'+$(object).attr('id').replace('#','')).css('display','block');
 		$('#callout_'+$(object).attr('id').replace('#','')).animate({opacity:1.0}, 300, function(){});
 	} else {
