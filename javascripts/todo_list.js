@@ -66,10 +66,10 @@ todo_list.setup_sortable = function() {
 todo_list.add_item = function(id, opacity, day, month, message) {
 	var todo_data = {
 		id: id,
-		opacity:opacity,
-		day:day,
-		month:month,
-		message:message
+		opacity: opacity,
+		day: day == '0' ? '' : day,
+		month: month == '0' ? '' : month,
+		message: message
 	};
 	
 	var todo = ich.todo_header_template(todo_data);
@@ -104,13 +104,21 @@ todo_list.add_todo = function() {
 	}
 }
 
+todo_list.day_from_timestamp = function (date) {
+	return '' + date.getDate();
+}
+
+todo_list.month_from_timestamp = function (date) {
+	return month_dic[''+(date.getMonth()+1)];
+}
+
 todo_list.todo_items_updated = function() {
-	
 	for(var i in wunderlist.todo_items) {
 		var itm = wunderlist.todo_items[i];
-		
-		var date_day = itm.date;
-		var date_month = itm.date;
+		var date_int = parseInt(itm.date*1000);
+		var date = new Date(date_int);
+		var date_day = date_int == 0 ? '' : todo_list.day_from_timestamp(date);
+		var date_month = date_int == 0 ? '' : todo_list.month_from_timestamp(date);
 		
 		todo_list.add_item(itm.id, itm.date == 0 ? 0.25 : 1.0, date_day, date_month, itm.name);
 	}
