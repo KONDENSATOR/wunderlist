@@ -7,7 +7,6 @@ footer.keywords_updated = function() {
 	$('.cloud').remove();
 
 	for(var keyword in data) {
-		p("has keyword" + data[keyword]);
 		var cloud_data = {
 			tag:data[keyword]
 		};

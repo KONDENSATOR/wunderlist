@@ -3,46 +3,58 @@
  *
  * Class for logging in into sync server, sync sending and retrieval
  * @author Dennis Schneider
+ * @modified Fredrik Andersson
  */
 
 var sync = sync || {};
-
-$(function()
-{
-	sync.init();
-});
 
 /**
  * Initializes the sync class
  *
  * @author Dennis Schneider
  */
-sync.init = function()
-{
+sync.init = function(login_dialog_func) {
 	this.syncDomain 		= 'https://sync.wunderlist.net/1.2.0';
 	this.syncUrl			= this.syncDomain;
 	this.alreadyRegistered 	= false;
 	this.timeOutInterval 	= '';
 	this.isSyncing			= false;
+	this.login_dialog_func 	= login_dialog_func;
 
-	this.status_codes =
-	{
+	this.status_codes = {
         'SYNC_SUCCESS': 				300,
         'SYNC_FAILURE': 				301,
         'SYNC_DENIED':	 				302,
         'SYNC_NOT_EXIST':				303
     };
+}
 
-	$('#sync').click(function()
-	{
-		if(sync.isSyncing == false)
-		{
-			timer.stop();
-			sync.fireSync();
-			return false;
-		}
-	});
-
+sync.perform_syncronization = function() {
+	
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	p("syncronizing began");
+	if(sync.isSyncing == false) {
+		timer.stop();
+		
+		sync.fireSync(this.login_dialog_func);
+		
+		return false;
+	}
 }
 
 /**
@@ -50,8 +62,7 @@ sync.init = function()
  *
  * @author Dennis Schneider
  */
-sync.validateEmail = function(email)
-{
+sync.validateEmail = function(email) {
 	var reg = /^([A-Za-z0-9\+_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 	if(reg.test(email) == false) {
 		$('.error').text(language.data.error_invalid_email);
@@ -67,162 +78,111 @@ sync.validateEmail = function(email)
  *
  * @author Dennis Schneider
  */
-sync.fireSync = function(logOutAfterSync, exitAfterSync, list_id)
-{
-	if (list_id == undefined)
-	{
+sync.fireSync = function(login_dialog_func, logOutAfterSync, exitAfterSync, list_id) {
+	
+	if (list_id == undefined) {
 		list_id = 0;
 	}
 
 	// Should the user be logged out after sync?
-	if(logOutAfterSync == undefined)
-	{
+	if(logOutAfterSync == undefined) {
 		logOutAfterSync = false;
 	}
 	
-	if(exitAfterSync == undefined)
-	{
+	if(exitAfterSync == undefined) {
 		exitAfterSync = false;
 	}
 	
-	if (Titanium.Network.online == false)
-	{
-		if(logOutAfterSync == true)
-		{
+	if (Titanium.Network.online == false) {
+		if(logOutAfterSync == true) {
 			sync.isSyncing = false;
 			account.logout();
 		}
 	}
 	
-	if(wunderlist.isUserLoggedIn() == false)
-	{
-		setTimeout(stopSyncAnimation, 10);
-		var html_code  = '<div>' + language.data.sync_not_logged_in + '</div>';
-			html_code += '<input class="input-button register" type="submit" id="notloggedin-yes" value="' + language.data.sync_not_logged_in_yes + '" />' +
-					'<input class="input-button" type="submit" id="notloggedin-cancel" value="' + language.data.sync_not_logged_in_no + '" />';
-
-	  	var notloggedin_dialog = dialogs.generateDialog(language.data.sync_not_logged_in_title, html_code, 'dialog-login');
-
-		$(notloggedin_dialog).dialog('open');
-
-		// If not logged in and want to sync
-		$('#notloggedin-yes').live('click', function() {
-			Layout.stopLoginAnimation();
-			$(register_dialog).dialog('open');
-			$(notloggedin_dialog).dialog('close');
-		});
-
-		$('#notloggedin-cancel').live('click', function() {
-			$(notloggedin_dialog).dialog('close');
-		});
+	if(wunderlist.isUserLoggedIn() == false) {
+		if(login_dialog_func()) {
+			sync.step1(logOutAfterSync, exitAfterSync, list_id);
+		}
+	} else {
+		sync.step1(logOutAfterSync, exitAfterSync, list_id);
 	}
-	else
-	{
-		// SYNC STEP 1
-		var data = {};
-		user_credentials			    = wunderlist.getUserCredentials();
-		data['email']					= user_credentials['email'];
-		data['password']				= user_credentials['password'];
-		data['step']					= 1;
-		data['sync_table']				= {};
-		data['sync_table']['lists']		= wunderlist.getDataForSync('lists', 'online_id, version', 'online_id != 0');
-		data['sync_table']['tasks']		= wunderlist.getDataForSync('tasks', 'online_id, version', 'online_id != 0');
-		data['sync_table']['new_lists']	= wunderlist.getDataForSync('lists', '*', 'online_id = 0 AND deleted = 0');
+}
 
-		var syncSuccessful = false;
-		this.isSyncing     = true;
+sync.step1 = function(logOutAfterSync, exitAfterSync, list_id) {
+	// SYNC STEP 1
+	var data = {};
+	
+	user_credentials			    = wunderlist.getUserCredentials();
+	data['email']					= user_credentials['email'];
+	data['password']				= user_credentials['password'];
+	data['step']					= 1;
+	data['sync_table']				= {};
+	data['sync_table']['lists']		= wunderlist.getDataForSync('lists', 'online_id, version', 'online_id != 0');
+	data['sync_table']['tasks']		= wunderlist.getDataForSync('tasks', 'online_id, version', 'online_id != 0');
+	data['sync_table']['new_lists']	= wunderlist.getDataForSync('lists', '*', 'online_id = 0 AND deleted = 0');
 
-		$.ajax({
-			url: this.syncDomain,
-			type: 'POST',
-			data: data,
-			timeout: config.REQUEST_TIMEOUT,
-			beforeSend: function()
-			{
-    			startSyncAnimation();
-			},
-			success: function(response_data, text, xhrobject)
-			{			
-				console.log(response_data);
-			
-				if(response_data != '' && text != '' && xhrobject != undefined)
-				{
-					switchSyncSymbol(xhrobject.status);
+	var syncSuccessful = false;
+	this.isSyncing     = true;
 
-					if(xhrobject.status == 200)
-					{
-						var response = eval('(' + response_data + ')');
+	$.ajax({
+		url: this.syncDomain,
+		type: 'POST',
+		data: data,
+		timeout: config.REQUEST_TIMEOUT,
+		beforeSend: function() {
+		},
+		success: function(response_data, text, xhrobject) {			
+			console.log(response_data);
+		
+			if(response_data != '' && text != '' && xhrobject != undefined) {
 
-						switch(response.code)
-						{
-							case sync.status_codes.SYNC_SUCCESS:
-								sync.syncSuccess(response, logOutAfterSync, exitAfterSync, list_id);
-								syncSuccessful = true;
-								clearInterval(sync.timeOutInterval);
-								sync.timeOutInterval = '';
-								break;
+				if(xhrobject.status == 200) {
+					var response = eval('(' + response_data + ')');
 
-							case sync.status_codes.SYNC_FAILURE:
-								sync.isSyncing = false;
-								dialogs.showErrorDialog(language.data.sync_failure);
-								break;
+					switch(response.code) {
+						case sync.status_codes.SYNC_SUCCESS:
+							sync.syncSuccess(response, logOutAfterSync, exitAfterSync, list_id);
+							syncSuccessful = true;
+							clearInterval(sync.timeOutInterval);
+							sync.timeOutInterval = '';
+							break;
 
-							case sync.status_codes.SYNC_DENIED:
-								sync.isSyncing = false;
-								dialogs.showErrorDialog(language.data.sync_denied);
-								break;
+						case sync.status_codes.SYNC_FAILURE:
+							sync.isSyncing = false;
+							dialogs.showErrorDialog(language.data.sync_failure);
+							break;
 
-							case sync.status_codes.SYNC_NOT_EXIST:
-								sync.isSyncing = false;
-								dialogs.showErrorDialog(language.data.sync_not_exist);
-								account.logout();
-								break;
+						case sync.status_codes.SYNC_DENIED:
+							sync.isSyncing = false;
+							dialogs.showErrorDialog(language.data.sync_denied);
+							break;
 
-							default:
-								sync.isSyncing = false;
-								dialogs.showErrorDialog(language.data.error_occurred);
-								break;
-						}
+						case sync.status_codes.SYNC_NOT_EXIST:
+							sync.isSyncing = false;
+							dialogs.showErrorDialog(language.data.sync_not_exist);
+							account.logout();
+							break;
+
+						default:
+							sync.isSyncing = false;
+							dialogs.showErrorDialog(language.data.error_occurred);
+							break;
 					}
 				}
-				else
-				{
-					switchSyncSymbol(0);
-				}
-			},
-			error: function(response_data)
-			{
-				console.log(response_data);
-				dialogs.showErrorDialog(language.data.sync_error);
-				switchSyncSymbol(0);
-				sync.isSyncing = false;
+			} else {
 			}
-		});
-		
-		if(syncSuccessful == false && logOutAfterSync == true)
-		{
+		},
+		error: function(response_data) {
+			console.log(response_data);
+									
 			sync.isSyncing = false;
-			account.logout();
 		}
-	}
-
-	// Create a timeout interval, if not already created
-	// and check for a successful sync
-	if(sync.timeOutInterval == '')
-	{
-		setTimeout(function() {
-			sync.timeOutInterval = setInterval(function() {
-				if(syncSuccessful == false)
-				{
-					switchSyncSymbol(0);
-					sync.isSyncing = false;
-				}
-				else
-				{
-					clearInterval(sync.timeOutInterval);
-				}
-			}, 2000);
-		}, 30000);
+	});
+	
+	if(syncSuccessful == false && logOutAfterSync == true) {
+		sync.isSyncing = false;
+		account.logout();
 	}
 }
 
@@ -239,33 +199,25 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 		var sync_table_step1 = response_step1.sync_table;
 		var synced_lists 	 = sync_table_step1.synced_lists;
 
-		if(synced_lists != undefined)
-		{
-			for(var i = 0, max = synced_lists.length; i < max; i++)
-			{
-				$.each(synced_lists[i], function(offline_id, online_id)
-				{
+		if(synced_lists != undefined) {
+			for(var i = 0, max = synced_lists.length; i < max; i++) {
+				$.each(synced_lists[i], function(offline_id, online_id) {
 					wunderlist.updateListId(offline_id, online_id);
 				});
 			}
 		}
 
 		// Update or create new lists
-		if(sync_table_step1.new_lists != undefined)
-		{
+		if(sync_table_step1.new_lists != undefined) {
 			var lists = sync_table_step1.new_lists;
 
-			if(lists.length > 0)
-			{
-				for(var i = 0, max = lists.length; i < max; i++)
-				{
+			if(lists.length > 0) {
+				for(var i = 0, max = lists.length; i < max; i++) {
 					// If list is already in database
-					if(wunderlist.elementExists(lists[i].online_id, 'lists'))
-					{
+					if(wunderlist.elementExists(lists[i].online_id, 'lists')) {
 						wunderlist.updateListByOnlineId(lists[i].online_id, lists[i].name, lists[i].deleted, lists[i].position, lists[i].version, lists[i].inbox, lists[i].shared);
 					}
-					else
-					{
+					else {
 						// Create a whole new list with the given uid
 						wunderlist.createListByOnlineId(lists[i].online_id, lists[i].name, lists[i].deleted, lists[i].position, lists[i].version, lists[i].inbox, lists[i].shared);
 					}
@@ -274,23 +226,17 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 		}
 
 		// Update or create new tasks
-		if(sync_table_step1.new_tasks != undefined)
-		{
+		if(sync_table_step1.new_tasks != undefined) {
 			var tasks = sync_table_step1.new_tasks;
 
-			if(tasks.length > 0)
-			{
-				for(var i = 0, max = tasks.length; i < max; i++)
-				{
+			if(tasks.length > 0) {
+				for(var i = 0, max = tasks.length; i < max; i++) {
 					var sync_offline_list_id = wunderlist.getListIdByOnlineId(tasks[i].list_id);
 
 					// If task is already in database
-					if(wunderlist.elementExists(tasks[i].online_id, 'tasks'))
-					{
+					if(wunderlist.elementExists(tasks[i].online_id, 'tasks')) {
 						wunderlist.updateTaskByOnlineId(tasks[i].online_id, tasks[i].name, tasks[i].date, tasks[i].done, sync_offline_list_id, tasks[i].position, tasks[i].important, tasks[i].done_date, tasks[i].deleted, tasks[i].version, tasks[i].note);
-					}
-					else
-					{
+					} else {
 						// Create a whole new task with the given id
 						wunderlist.createTaskByOnlineId(tasks[i].online_id, tasks[i].name, tasks[i].date, tasks[i].done, sync_offline_list_id, tasks[i].position, tasks[i].important, tasks[i].done_date, tasks[i].deleted, tasks[i].version, tasks[i].note);
 					}
@@ -310,25 +256,19 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 	data['step']						 = 2;
 
 	// Only if there is a response or new tasks
-	if(sync_table_step1 != undefined || data['sync_table']['new_tasks'] != undefined)
-	{
+	if(sync_table_step1 != undefined || data['sync_table']['new_tasks'] != undefined) {
 		// Collect the tasks and lists, that the server requires
-		if(sync_table_step1 != undefined)
-		{
-			if(sync_table_step1.required_tasks != undefined)
-			{
-				for(var i = 0, max = sync_table_step1.required_tasks.length; i < max; i++)
-				{
+		if(sync_table_step1 != undefined) {
+			if(sync_table_step1.required_tasks != undefined) {
+				for(var i = 0, max = sync_table_step1.required_tasks.length; i < max; i++) {
 					data['sync_table']['required_tasks'][i] = wunderlist.getDataForSync('tasks', '*', 'online_id = ' + sync_table_step1.required_tasks[i], false);
 				}
 
 				data['sync_table']['required_tasks'] = sync.setTaskListIdToListOnlineId(data['sync_table']['required_tasks']);
 			}
 
-			if(sync_table_step1.required_lists != undefined)
-			{
-				for(var i = 0, max = sync_table_step1.required_lists.length; i < max; i++)
-				{
+			if(sync_table_step1.required_lists != undefined) {
+				for(var i = 0, max = sync_table_step1.required_lists.length; i < max; i++) {
 					data['sync_table']['required_lists'][i] = wunderlist.getDataForSync('lists', '*', 'online_id = ' + sync_table_step1.required_lists[i], false);
 				}
 			}
@@ -338,28 +278,21 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 			url: this.syncDomain,
 			type: 'POST',
 			data: data,
-			success: function(response_data, text, xhrobject)
-			{
+			success: function(response_data, text, xhrobject) {
 				switchSyncSymbol(xhrobject.status);
 
-				if(xhrobject.status == 200)
-				{
+				if(xhrobject.status == 200) {
 					var response = eval('(' + response_data + ')');
 
-					switch(response.code)
-					{
+					switch(response.code) {
 						case sync.status_codes.SYNC_SUCCESS:
-							if(response.sync_table != undefined)
-							{
+							if(response.sync_table != undefined) {
 								// SYNC STEP 4
 								var sync_table   = response.sync_table;
 								var synced_tasks = sync_table.synced_tasks;
-								if(synced_tasks != undefined)
-								{
-									for(var i = 0, max = synced_tasks.length; i < max; i++)
-									{
-										$.each(synced_tasks[i], function(offline_id, online_id)
-										{
+								if(synced_tasks != undefined) {
+									for(var i = 0, max = synced_tasks.length; i < max; i++) {
+										$.each(synced_tasks[i], function(offline_id, online_id) {
 											wunderlist.updateTaskId(offline_id, online_id);
 										});
 									}
@@ -369,8 +302,7 @@ sync.syncSuccess = function(response_step1, logOutAfterSync, exitAfterSync, list
 					}
 				}
 			},
-			error: function(xhrobject)
-			{
+			error: function(xhrobject) {
 				dialogs.showErrorDialog(language.data.sync_error);
 			}
 		});

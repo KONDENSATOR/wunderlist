@@ -1,18 +1,20 @@
+
 var wunderlist = wunderlist || {
 	meta_tags:null,
 	bound_keywords_updated:[],
+	meta_tags_once:null,
 	
 	todo_items:null,
-	bound_todo_items_updated:[]
+	bound_todo_items_updated:[],
+	todo_items_once:null,
+
+	lists:null,
+	bound_lists_updated:[],
+	lists_once:null
 };
 
+// Simple shortcut
 var p = Titanium.API.debug;
-
-function print(obj){
-	var ostring = Titanium.JSON.stringify(obj);
-	
-	Titanium.API.debug(ostring);
-}
 
 var meta = {
 	types:{
@@ -145,7 +147,13 @@ var meta = {
 	}
 };
 
-$(function() {
+/**
+ * Initialize database
+ *
+ * @author ?
+ * @modified Fredrik Andersson
+ */
+wunderlist.init = function() {
 	wunderlist.initAppTitle();
 	wunderlist.initDatabase();
 	
@@ -155,46 +163,67 @@ $(function() {
 	language.init();
 	account.init();
 	timer.init();
-	// Menu.initializeTrayIcon();
 	sharing.init();
 	notifications.init();
-	// share.init();
-});
+};
 
-function trim(str, chars) {
-	return ltrim(rtrim(str, chars), chars);
-}
- 
-function ltrim(str, chars) {
-	chars = chars || "\\s";
-	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
-}
- 
-function rtrim(str, chars) {
-	chars = chars || "\\s";
-	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
-}
 
+
+/**
+ * Poke any subscribers of keywords updated
+ *
+ * @author Fredrik Andersson
+ */
 wunderlist.poke_keywords_updated_subscribers = function() {
 	for(var i in this.bound_keywords_updated) {
-		bound_keywords_updated[i]();
+		this.bound_keywords_updated[i]();
 	}
+	// if(this.meta_tags_once == null){
+	// 	this.meta_tags_once = new once(function() {
+	// 		for(var i in this.bound_keywords_updated) {
+	// 			this.bound_keywords_updated[i]();
+	// 		}
+	// 	}, 200);
+	// }
+	// this.meta_tags_once.invoke();
 }
 
+/**
+ * Bind subscriber to keywords updated
+ *
+ * @author Fredrik Andersson
+ */
 wunderlist.bindto_keywords_updated = function(func) {
 	this.bound_keywords_updated.push(func);
-	
 	if(this.meta_tags != null){
 		func();
 	}
 }
 
-wunderlist.poke_bindto_todo_items_subscribers = function() {
+/**
+ * Poke any subscribers of todo_items updated
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.poke_todo_items_updated_subscribers = function() {
 	for(var i in this.bound_todo_items_updated) {
 		this.bound_todo_items_updated[i]();
 	}
+	// if(this.todo_items_once == null){
+	// 	this.todo_items_once = new once(function(){
+	// 		for(var i in this.bound_todo_items_updated) {
+	// 			this.bound_todo_items_updated[i]();
+	// 		}
+	// 	}, 200);
+	// }
+	// this.todo_items_once.invoke();	
 }
 
+/**
+ * Bind subscriber to todo_items update
+ *
+ * @author Fredrik Andersson
+ */
 wunderlist.bindto_todo_items_updated = function(func) {
 	this.bound_todo_items_updated.push(func);
 	
@@ -202,6 +231,39 @@ wunderlist.bindto_todo_items_updated = function(func) {
 		func();
 	}
 }
+
+/**
+ * Poke any subscribers of lists updated
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.poke_lists_updated_subscribers = function() {
+	for(var i in this.bound_lists_updated) {
+		this.bound_lists_updated[i]();
+	}
+	// if(this.lists_once == null){
+	// 	this.lists_once = new once(function(){
+	// 		for(var i in this.bound_lists_updated) {
+	// 			this.bound_lists_updated[i]();
+	// 		}
+	// 	}, 200);
+	// }
+	// this.lists_once.invoke();		
+}
+
+/**
+ * Bind subscriber to lists updated
+ *
+ * @author Fredrik Andersson
+ */
+wunderlist.bindto_lists_updated = function(func) {
+	this.bound_lists_updated.push(func);
+	
+	if(this.lists != null){
+		func();
+	}
+}
+
 
 /**
  * Returns all valid keywords
@@ -365,6 +427,11 @@ wunderlist.update_120 = function() {
 	catch(err) {}
 };
 
+/**
+ * Is needed for the KONDENSATOR release
+ *
+ * @author Fredrik Andersson
+ */
 wunderlist.update_120_kondensator = function() {
 	try {
 		this.database.execute("ALTER TABLE 'main'.'tasks' ADD COLUMN 'meta' TEXT DEFAULT ''");
@@ -372,63 +439,6 @@ wunderlist.update_120_kondensator = function() {
 	catch(err) {}
 }
 
-/**
- * Creates the standard database calls
- *
- * @author Daniel Marschner, Christian Reber, Dennis Schneider
- */
-wunderlist.createDatabaseStandardElements = function(only_tutorials)
-{
-	var resultSet = this.database.execute("SELECT id FROM lists WHERE id = '1' AND lists.deleted = 0 LIMIT 1");
-	if(resultSet.rowCount() == 0 || only_tutorials == true)
-	{
-		// Only clear database, if complete start
-		if (only_tutorials != true)
-		{
-			// Truncate database and create inbox
-			wunderlist.truncateDatabase();
-			this.database.execute("INSERT INTO lists (name, id, inbox) VALUES ('" + language.data.inbox + "', '1', '1')");
-			save_last_opened_list('2');
-		}
-
-		var tutorials_list_id = this.createList(language.data.tutorials);
-
-		// Generate Default Tasks
-		this.database.execute("INSERT INTO tasks (name, list_id, position, important) VALUES ('" + language.data.default_task_1 + "', '" + tutorials_list_id + "', '0', '1')");
-		
-		// Check if var os is set
-		if (os == undefined)
-			var os = Titanium.Platform.name.toLowerCase();
-		
-		// Default Tasks for Mac
-		if (os == 'darwin')
-		{
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_2_mac, tutorials_list_id, '1');
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_5_mac, tutorials_list_id, '4');
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_6_mac, tutorials_list_id, '5');
-		}
-		// Default Tasks for other operating systems
-		else
-		{
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_2, tutorials_list_id, '1');
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_5, tutorials_list_id, '4');
-			this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_6, tutorials_list_id, '5');
-		}
-
-		this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_4, tutorials_list_id, '2');
-		this.database.execute("INSERT INTO tasks (name, list_id, position) VALUES (?, ?, ?)", language.data.default_task_8, tutorials_list_id, '3');
-
-		done_date = new Date().getTime() / 1000;
-		this.database.execute("INSERT INTO tasks (name, list_id, position, done, done_date) VALUES (?, ?, ?, ?, ?)", language.data.default_task_7, tutorials_list_id, '4', '1', done_date);
-
-		// Load the new list (only if users recreates tutorials)
-		if (only_tutorials == true)
-		{
-			timer.stop().set(15).start();
-			return tutorials_list_id;
-		}
-	}
-}
 
 /**
  * Recreate tutorial tasks
@@ -447,8 +457,7 @@ wunderlist.recreateTutorials = function()
  *
  * @author Dennis Schneider
  */
-wunderlist.truncateDatabase = function()
-{
+wunderlist.truncateDatabase = function() {
 	this.database.execute("DELETE FROM lists");
 	this.database.execute("DELETE FROM tasks");
 	this.database.execute("DELETE FROM sqlite_sequence WHERE name = 'lists'");
@@ -461,14 +470,12 @@ wunderlist.truncateDatabase = function()
  * @author Dennis Schneider
  * @author Daniel Marschner
  */
-wunderlist.initLists = function()
-{
+wunderlist.initLists = function() {
 	var listsResultSet = this.database.execute("SELECT lists.id, lists.name, lists.inbox, (SELECT COUNT(tasks.id) FROM tasks WHERE tasks.list_id = lists.id AND deleted = 0 AND done = 0) as taskCount, shared FROM lists WHERE lists.deleted = 0 ORDER BY lists.inbox DESC, lists.position ASC");
 
-	 $('div#lists').html('');
+	var result = {};
 
-	while(listsResultSet.isValidRow())
-	{
+	while(listsResultSet.isValidRow()) {
 		var list = {
 			'id':			listsResultSet.field(0),
 			'name':			unescape(listsResultSet.field(1)),
@@ -476,34 +483,13 @@ wunderlist.initLists = function()
 			'taskCount':	listsResultSet.field(3),
 			'shared':       listsResultSet.field(4)
 		};
-
-		var html_code = '';
-
-		if(list['inbox'] == 1)
-		{
- 			html_code = "<a id='" + list['id'] + "' class='list'><span>" + list.taskCount + "</span><div class='editp'></div></div><b class='inbox'>" + list['name'] + "</b></a>";
-		}
- 		else
-		{
-			if(list['shared'] == 0)
-			{
-				html_code = "<a id='" + list['id'] + "' class='list sortablelist'><span>" + list.taskCount + "</span><div class='deletep'></div><div class='editp'></div><div class='savep'></div><b>" + list['name'] + "</b></a>";
-			}
-			else
-			{
-				html_code = "<a id='" + list['id'] + "' class='list sortablelist'><span>" + list.taskCount + "</span><div class='deletep'></div><div class='editp'></div><div class='savep'></div><b class='shared'>" + list['name'] + "</b></a>";
-			}
-		}
-
-		$("#lists").append(html_code);
-
-		if(list['name'].length > 30)
-		{
-			$('div#sidebar a#' + list['id']).children('b').attr('title', list['name']);
-		}
+		
+		result[list.id] = list;
 
 		listsResultSet.next();
     }
+
+	lists = result;
 }
 
 wunderlist.getTasksByResultSet = function(resultTaskSet){
@@ -532,7 +518,7 @@ wunderlist.getTasksByResultSet = function(resultTaskSet){
 wunderlist.updateTodoListItems = function(items) {
 	this.todo_items = items;
 	
-	this.poke_bindto_todo_items_subscribers();
+	this.poke_todo_items_updated_subscribers();
 }
 
 /**
@@ -541,8 +527,7 @@ wunderlist.updateTodoListItems = function(items) {
  * @author Dennis Schneider
  * @modified Fredrik Andersson
  */
-wunderlist.getTasksByListId = function(list_id)
-{
+wunderlist.getTasksByListId = function(list_id){
 	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE list_id = ? AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC", list_id);
 
 	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
@@ -553,8 +538,7 @@ wunderlist.getTasksByListId = function(list_id)
  * 
  * @author Fredrik Andersson
  */
-wunderlist.getTasksByUser = function(user_name)
-{
+wunderlist.getTasksByUser = function(user_name) {
 	var resultTaskSet = this.database.execute("SELECT * FROM tasks WHERE name LIKE '%" +user_name+ "%' AND deleted = 0 AND done = 0 ORDER BY important DESC, position ASC");
 
 	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultTaskSet));
@@ -572,8 +556,7 @@ wunderlist.getTasks = function() {
  *
  * @author Daniel Marschner
  */
-wunderlist.listExistsById = function(list_id)
-{
+wunderlist.listExistsById = function(list_id) {
 	var countSet = this.database.execute("SELECT * FROM lists WHERE id = '" + list_id + "' AND deleted = 0");
 	return (countSet.rowCount() > 0) ? true : false;
 }
@@ -584,8 +567,7 @@ wunderlist.listExistsById = function(list_id)
  *
  * @author Dennis Schneider
  */
-wunderlist.calculateDayDifference = function(done)
-{
+wunderlist.calculateDayDifference = function(done) {
 	var today   = new Date();
 
 	// One day in seconds
@@ -605,8 +587,7 @@ wunderlist.calculateDayDifference = function(done)
  *
  * @author Dennis Schneider
  */
-wunderlist.liveSearch = function(search)
-{
+wunderlist.liveSearch = function(search) {
     $("#content").html("");
 
 	var resultSet = this.query("SELECT * FROM tasks WHERE (name LIKE '%" + search + "%' OR note LIKE '%" + search + "%') AND tasks.deleted = 0 ORDER BY done ASC, important DESC, date DESC");
@@ -619,8 +600,7 @@ wunderlist.liveSearch = function(search)
  *
  * @author Dennis Schneider
  */
-wunderlist.query = function(query)
-{
+wunderlist.query = function(query) {
     return this.database.execute(query);
 }
 
@@ -631,8 +611,7 @@ wunderlist.query = function(query)
  * @author Dennis Schneider
  * @updated Fredrik Andersson
  */
-wunderlist.createTask = function(name, list_id, timestamp)
-{
+wunderlist.createTask = function(name, list_id, timestamp) {
 	var alltags = meta.meta_from_string(name);
 	
 	this.append_meta_tags(alltags);
@@ -1172,11 +1151,14 @@ wunderlist.deleteListById = function(list_id)
  * Update the count of the list
  *
  * @author Dennis Schneider
+ * @modified Fredrik Andersson
  */
 wunderlist.updateCount = function(list_id)
 {
 	this.database.execute("SELECT id FROM tasks WHERE list_id = '" + list_id + "' AND done = 0 AND deleted = 0");
-	$('div#lists a#' + list_id + ' span').html(this.database.rowsAffected);
+
+
+	// $('div#lists a#' + list_id + ' span').html(this.database.rowsAffected);
 }
 
 /**
@@ -1184,8 +1166,7 @@ wunderlist.updateCount = function(list_id)
  *
  * @author Dennis Schneider
  */
-wunderlist.updateTaskList = function(task_id, list_id)
-{
+wunderlist.updateTaskList = function(task_id, list_id) {
 	timer.stop().set(15).start();
 	var resultSet = this.database.execute("SELECT position FROM tasks WHERE list_id = '" + list_id + "' AND tasks.deleted = 0 ORDER BY position DESC LIMIT 1");
 	var position = 0;
@@ -1201,8 +1182,7 @@ wunderlist.updateTaskList = function(task_id, list_id)
  *
  * @author Dennis Schneider
  */
-wunderlist.deleteTaskById = function(task_id, list_id)
-{
+wunderlist.deleteTaskById = function(task_id, list_id) {
 	timer.stop().set(15).start();
 	this.database.execute("UPDATE tasks SET deleted = 1, version = version + 1 WHERE id = '" + task_id + "'");
 	this.updateCount(list_id);
@@ -1213,8 +1193,7 @@ wunderlist.deleteTaskById = function(task_id, list_id)
  *
  * @author Dennis Schneider
  */
-wunderlist.getBadgeCount = function(filter_name)
-{
+wunderlist.getBadgeCount = function(filter_name) {
 	var sql = "SELECT id AS count FROM tasks WHERE ";
 
 	var current_date  = html.getWorldWideDate();
@@ -1243,8 +1222,7 @@ wunderlist.getBadgeCount = function(filter_name)
  * @author Daniel Marschner
  * @modified Fredrik Andersson
  */
-wunderlist.getListById = function(list_id)
-{
+wunderlist.getListById = function(list_id) {
 	var resultListSet = wunderlist.query("SELECT id, name FROM lists WHERE id = '" + list_id + "' AND lists.deleted = 0");
 
 	var list = {
@@ -1268,8 +1246,7 @@ wunderlist.getListById = function(list_id)
  *
  * @author Daniel Marschner
  */
-wunderlist.getListIdsByTaskId = function(task_id)
-{
+wunderlist.getListIdsByTaskId = function(task_id) {
 	var list = {};
 
 	var resultTaskSet = this.database.execute("SELECT list_id FROM tasks WHERE id = ?", task_id);
@@ -1293,8 +1270,7 @@ wunderlist.getListIdsByTaskId = function(task_id)
  *
  * @author Daniel Marschner
  */
-wunderlist.getListNameById = function(list_id)
-{
+wunderlist.getListNameById = function(list_id) {
 	var sql  = "SELECT lists.name ";
 		sql += "FROM lists ";
 		sql += "WHERE lists.id = '" + list_id + "'";
@@ -1375,8 +1351,7 @@ wunderlist.getFilteredTasks = function(type, date_type) {
  *
  * @author Dennis Schneider
  */
-wunderlist.getFilteredTasksForPrinting = function(type, date_type)
-{
+wunderlist.getFilteredTasksForPrinting = function(type, date_type) {
 	var resultSet = wunderlist.getFilteredTasks(type, date_type, true);
 
 	var tasks = {};
@@ -1402,8 +1377,7 @@ wunderlist.getFilteredTasksForPrinting = function(type, date_type)
  *
  * @author Dennis Schneider
  */
-wunderlist.createUser = function(email, password)
-{
+wunderlist.createUser = function(email, password) {
 	Titanium.App.Properties.setString('logged_in', 'true');
 	Titanium.App.Properties.setString('email', email.toString());
 	Titanium.App.Properties.setString('password', password.toString());
@@ -1414,8 +1388,7 @@ wunderlist.createUser = function(email, password)
  *
  * @author Dennis Schneider
  */
-wunderlist.logUserOut = function()
-{
+wunderlist.logUserOut = function() {
 	Titanium.App.Properties.setString('logged_in', 'false');
 	wunderlist.deleteUserCredentials();
 }
@@ -1425,8 +1398,7 @@ wunderlist.logUserOut = function()
  *
  * @author Dennis Schneider
  */
-wunderlist.isUserLoggedIn = function()
-{
+wunderlist.isUserLoggedIn = function() {
 	logged_in = Titanium.App.Properties.getString('logged_in', 'false');
 	if (logged_in == 'true')
 		return true;
@@ -1439,8 +1411,7 @@ wunderlist.isUserLoggedIn = function()
  *
  * @author Dennis Schneider
  */
-wunderlist.getUserCredentials = function()
-{
+wunderlist.getUserCredentials = function() {
 	values = {
 		'email': Titanium.App.Properties.getString('email', ''),
 		'password': Titanium.App.Properties.getString('password', '') // encrypted !
@@ -1455,8 +1426,7 @@ wunderlist.getUserCredentials = function()
  *
  * @author Dennis Schneider
  */
-wunderlist.deleteUserCredentials = function()
-{
+wunderlist.deleteUserCredentials = function() {
 	Titanium.App.Properties.setString('email', '');
 	Titanium.App.Properties.setString('password', '');
 }
@@ -1467,8 +1437,7 @@ wunderlist.deleteUserCredentials = function()
  * @author Dennis Schneider
  * @modified Fredrik Andersson
  */
-wunderlist.getDataForSync = function(type, fields, where, return_object)
-{
+wunderlist.getDataForSync = function(type, fields, where, return_object) {
 	if(type == undefined)
   		type = 'lists';
 
@@ -1518,8 +1487,7 @@ wunderlist.getDataForSync = function(type, fields, where, return_object)
  * @author Dennis Schneider
  * @modified Fredrik Andersson
  */
-wunderlist.getLastDoneTasks = function(list_id)
-{
+wunderlist.getLastDoneTasks = function(list_id) {
 	var sql  = "SELECT * ";
 	    sql += "FROM tasks ";
 	    sql += "WHERE tasks.done = 1 AND list_id = '" + list_id + "' AND tasks.deleted = 0 ";
@@ -1530,8 +1498,7 @@ wunderlist.getLastDoneTasks = function(list_id)
 	wunderlist.updateTodoListItems(this.getTasksByResultSet(resultSet));
 }
 
-wunderlist.isArray = function(value)
-{
+wunderlist.isArray = function(value) {
 	if (typeof value === 'object' && value && value instanceof Array)
 		return true;
 

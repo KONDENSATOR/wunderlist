@@ -68,7 +68,7 @@ header.keywords_updated = function() {
 }
 
 header.init = function() {
-	//wunderlist.bindto_keywords_updated(header.keywords_updated);
+	wunderlist.bindto_keywords_updated(header.keywords_updated);
 	
 	header.should_toggle_date = true;
 	$("header :date").dateinput({
@@ -137,9 +137,7 @@ header.init = function() {
 				header.should_toggle_date = false;
 				setTimeout("header.should_toggle_date = true;",100);
 				header.remove_date();
-			}
-			
-			
+			}			
 		}
 	});
 	

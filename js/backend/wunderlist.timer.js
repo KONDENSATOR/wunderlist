@@ -16,8 +16,9 @@ timer.init = function()
 			timer.auto_update_seconds--;
 			if(timer.auto_update_seconds === 0)
 			{
-				if(wunderlist.isUserLoggedIn() && Titanium.Network.online == true)
-					$('#sync').click();
+				if(wunderlist.isUserLoggedIn() && Titanium.Network.online == true) {
+					sync.perform_syncronization();
+				}
 				clearInterval(timer.auto_update_interval);
 				timer.init();
 			}
@@ -81,8 +82,9 @@ timer.start = function()
 			timer.total_seconds--;
 			if(timer.total_seconds === 0)
 			{
-				if(wunderlist.isUserLoggedIn() && Titanium.Network.online == true)
-					$('#sync').click();
+				if(wunderlist.isUserLoggedIn() && Titanium.Network.online == true) {
+					sync.perform_syncronization();
+				}
 
 				clearInterval(timer.interval);
 			}
