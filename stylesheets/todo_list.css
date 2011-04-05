@@ -3,7 +3,7 @@
 	border: 1px solid silver;
 	padding: 5px;
 	height: 32px;
-	margin-top: -5px;
+	margin-bottom: 10px;
 	background-color: white;
 }
 
@@ -110,5 +110,5 @@
 	margin-top: 10px;
 	margin-left: 10px;
 	margin-right: 10px;
-	margin-bottom: 0px;
+	margin-bottom: 10px;
 }

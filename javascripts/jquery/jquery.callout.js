@@ -212,6 +212,7 @@ jQuery.fn.callout = function (options) {
 						$(caller).callout("reorder");
 					});
 				}
+				$co.css('display','none');
 				caller.callout.push($co);
 			}
 		});
