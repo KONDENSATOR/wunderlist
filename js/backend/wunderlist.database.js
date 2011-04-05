@@ -1,6 +1,9 @@
 var wunderlist = wunderlist || {
 	meta_tags:null,
-	bound_keywords_updated:[]
+	bound_keywords_updated:[],
+	
+	todo_items:null,
+	bound_todo_items_updated:[]
 };
 
 var p = Titanium.API.debug;
@@ -182,6 +185,20 @@ wunderlist.bindto_keywords_updated = function(func) {
 	this.bound_keywords_updated.push(func);
 	
 	if(this.meta_tags != null){
+		func();
+	}
+}
+
+wunderlist.poke_bindto_todo_items_subscribers = function() {
+	for(var i in this.bound_todo_items_update) {
+		bound_todo_items_update[i]();
+	}
+}
+
+wunderlist.bindto_todo_items_updated = function(func) {
+	this.bound_todo_items_update.push(func);
+	
+	if(this.todo_items != null){
 		func();
 	}
 }

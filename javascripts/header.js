@@ -40,38 +40,6 @@ header.focus_input = function() {
 	$('#input').focus();
 }
 
-header.add_todo = function() {
-	if ($('#input').val() != '') {
-		
-		var id = $('.todo').length;		
-		
-		var opacity = $('#day').html() == '' ? 0.25 : 1.0;
-		var todo_data = {
-			id: id,
-			opacity:opacity,
-			day: $('#day').html(),
-			month: $('#month').html(),
-			message: $('#input').val()
-		};
-		
-		var todo = ich.todo_header_template(todo_data);
-
-		$('.sortable').append(todo);
-		
-		$('#todo_'+id).slideDown("fast");
-		$('.sortable').sortable('cancel');
-		
-		$('#input').val('');
-		$('#day').html('');
-		$('#month').html('');
-		$('#date').val('');
-		$('#date_holder').css('opacity',0.5);
-		
-		todo_list.activate_filter();
-		todo_list.setup_sortable();
-	}
-}
-
 
 header.keywords_updated = function() {
 	var data = wunderlist.keywords();
@@ -104,10 +72,10 @@ header.init = function() {
 	
 	
 	if (/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
-		$('#add_button').bind('touchend',header.add_todo);
+		$('#add_button').bind('touchend',todo_list.add_todo);
 		$('#add_tooltip').css('opacity',0.0);
 	} else {
-		$('#add_button').bind('click',header.add_todo);
+		$('#add_button').bind('click',todo_list.add_todo);
 	}
 	
 	// Setup command key listener
@@ -135,7 +103,7 @@ header.init = function() {
 			var pressed_minus = (event.keyCode == '191' || event.keyCode == '109');
 			
 			if (pressed_return) { // Command + return
-				header.add_todo();
+				todo_list.add_todo();
 			} else if (!isShift && pressed_d) { // Command + D
 				header.set_today();
 			} else if (isShift && pressed_d) { // Command + Shift + D
