@@ -25,6 +25,17 @@ header.set_today = function() {
 	$('#input').focus();
 }
 
+header.remove_date = function() {
+	var api = $(":date").data("dateinput");
+	api.setValue(null);
+	api.hide();
+	$('#date').val('');
+	$('#day').html('');
+	$('#month').html('');
+	$('#input').blur();
+	$('#input').focus();
+}
+
 header.focus_input = function() {
 	$('#input').focus();
 }
@@ -73,8 +84,9 @@ header.keywords_updated = function() {
 }
 
 header.init = function() {
-	wunderlist.bindto_keywords_updated(header.keywords_updated);
+	//wunderlist.bindto_keywords_updated(header.keywords_updated);
 	
+	header.should_toggle_date = true;
 	$("header :date").dateinput({
 		value: new Date(),
 		firstDay: 1,
@@ -84,7 +96,9 @@ header.init = function() {
 			$('#day').html(this.getValue('dd'));
 			$('#month').html(month_dic[this.getValue('mm')]);
 			$('#date_holder').css('opacity',1.0);
-			header.toggle_date();
+			if (header.should_toggle_date) {
+				header.toggle_date();
+			}
 		}
 	});
 	
@@ -97,11 +111,20 @@ header.init = function() {
 		$('#add_button').bind('click',header.add_todo);
 	}
 	
+	// Setup command key listener
 	var isCommand = false;$(document).keyup(function (e) {
 		if(e.which == 91 || e.which == 93) isCommand=false;
 	}).keydown(function (e) {
 	    if(e.which == 91) isCommand=true;
 	    if(e.which == 93 && isCommand == true) {return false;}
+	});
+	
+	// Setup shift key listener
+	var isShift = false;$(document).keyup(function (e) {
+		if(e.which == 16 || e.which == 16) isShift=false;
+	}).keydown(function (e) {
+	    if(e.which == 16) isShift=true;
+	    if(e.which == 16 && isShift == true) {return false;}
 	});
 	
 	$('#input').keydown(function(event) {
@@ -114,11 +137,15 @@ header.init = function() {
 			
 			if (pressed_return) { // Command + return
 				header.add_todo();
-			} else if (pressed_d) {
+			} else if (!isShift && pressed_d) { // Command + D
 				header.set_today();
-			} else if (pressed_l) {
-				
+			} else if (isShift && pressed_d) { // Command + Shift + D
+				header.should_toggle_date = false;
+				setTimeout("header.should_toggle_date = true;",100);
+				header.remove_date();
 			}
+			
+			
 		}
 	});
 	
