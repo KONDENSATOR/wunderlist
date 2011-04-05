@@ -31,23 +31,6 @@ sync.init = function(login_dialog_func) {
 
 sync.perform_syncronization = function() {
 	
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
-	p("syncronizing began");
 	if(sync.isSyncing == false) {
 		timer.stop();
 		
